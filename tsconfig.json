@@ -1,0 +1,26 @@
+{
+  "include": [
+    "src/**/*"
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "composite": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "paths": {
+      "@klonzo/*": [
+        "packages/*/src"
+      ]
+    },
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "target": "esnext",
+    "lib": [
+      "esnext"
+    ]
+  }
+}
