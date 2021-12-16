@@ -1,8 +1,8 @@
 import bodyParser from 'body-parser'
-import express, { Request, Response, NextFunction } from 'express'
+import express, { Request, Response } from 'express'
 import path from 'path'
-import generateUniqueId from './util'
 import serviceKeyCheck from './middleware'
+import generateUniqueId from './util'
 
 const app = express()
 const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY
@@ -13,6 +13,7 @@ app.set('views', path.join(__dirname, '/views'))
 
 // The status
 app.get('/ifttt/v1/status', serviceKeyCheck, (req: Request, res: Response) => {
+  console.log('/ifttt/v1/status')
   res.status(200).send()
 })
 
@@ -21,6 +22,7 @@ app.post(
   '/ifttt/v1/test/setup',
   serviceKeyCheck,
   (req: Request, res: Response) => {
+    console.log('/ifttt/v1/test/setup')
     res.status(200).send({
       data: {
         samples: {
@@ -37,6 +39,7 @@ app.post(
 app.post(
   '/ifttt/v1/triggers/new_thing_created',
   (req: Request, res: Response) => {
+    console.log('/ifttt/v1/triggers/new_thing_created')
     const key = req.get('IFTTT-Service-Key')
 
     if (key !== IFTTT_SERVICE_KEY) {
@@ -78,6 +81,7 @@ app.post(
 // Query endpoints
 
 app.post('/ifttt/v1/queries/list_all_things', (req: Request, res: Response) => {
+  console.log('/ifttt/v1/queries/list_all_things')
   const key = req.get('IFTTT-Service-Key')
 
   if (key !== IFTTT_SERVICE_KEY) {
@@ -126,8 +130,7 @@ app.post('/ifttt/v1/queries/list_all_things', (req: Request, res: Response) => {
 app.post(
   '/ifttt/v1/actions/create_new_thing',
   (req: Request, res: Response) => {
-    console.log('create_new_thing')
-
+    console.log('/ifttt/v1/actions/create_new_thing')
     const key = req.get('IFTTT-Service-Key')
 
     if (key !== IFTTT_SERVICE_KEY) {
@@ -153,9 +156,10 @@ app.post(
 // listen for requests :)
 
 app.get('/', (req: Request, res: Response) => {
+  console.log('render index.ejs')
   res.render('index.ejs')
 })
 
 const listener = app.listen(process.env.PORT, function () {
-  console.log('Your app is listening on port ' + listener.address().port)
+  console.log('app is listening on port ' + listener.address().port)
 })
