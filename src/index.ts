@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser'
 import express from 'express'
 import path from 'path'
-import generateUniqueId from './helpers'
+import generateUniqueId from './util'
 import serviceKeyCheck from './middleware'
 
 const app = express()
