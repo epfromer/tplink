@@ -11,13 +11,13 @@ app.use(bodyParser.json())
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, '/views'))
 
-// The status
+// get status of service
 app.get('/ifttt/v1/status', serviceKeyCheck, (req: Request, res: Response) => {
   console.log('/ifttt/v1/status')
   res.status(200).send()
 })
 
-// The test/setup endpoint
+// setup tests
 app.post(
   '/ifttt/v1/test/setup',
   serviceKeyCheck,
@@ -26,29 +26,22 @@ app.post(
     res.status(200).send({
       data: {
         samples: {
-          actionRecordSkipping: {
-            create_new_thing: { invalid: 'true' },
-          },
+          actionRecordSkipping: { create_new_thing: { invalid: 'true' } },
         },
       },
     })
   }
 )
 
-// Trigger endpoints
+// trigger: new thing created
 app.post(
   '/ifttt/v1/triggers/new_thing_created',
   (req: Request, res: Response) => {
     console.log('/ifttt/v1/triggers/new_thing_created')
-    const key = req.get('IFTTT-Service-Key')
-
-    if (key !== IFTTT_SERVICE_KEY) {
-      console.log(
-        '/ifttt/v1/triggers/new_thing_created Channel/Service key is not correct'
-      )
-      res.status(401).send({
-        errors: [{ message: 'Channel/Service key is not correct' }],
-      })
+    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+      res
+        .status(401)
+        .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
       return
     }
 
@@ -72,28 +65,17 @@ app.post(
       }
     }
 
-    console.log(
-      '/ifttt/v1/triggers/new_thing_created Channel/Service sending status 200'
-    )
-    res.status(200).send({
-      data: data,
-    })
+    res.status(200).send({ data: data })
   }
 )
 
-// Query endpoints
-
+// query: list all things
 app.post('/ifttt/v1/queries/list_all_things', (req: Request, res: Response) => {
   console.log('/ifttt/v1/queries/list_all_things')
-  const key = req.get('IFTTT-Service-Key')
-
-  if (key !== IFTTT_SERVICE_KEY) {
-    console.log(
-      '/ifttt/v1/queries/list_all_things Channel/Service key is not correct'
-    )
-    res.status(401).send({
-      errors: [{ message: 'Channel/Service key is not correct' }],
-    })
+  if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+    res
+      .status(401)
+      .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
     return
   }
 
@@ -129,20 +111,15 @@ app.post('/ifttt/v1/queries/list_all_things', (req: Request, res: Response) => {
   })
 })
 
-// Action endpoints
+// action: create a new thing
 app.post(
   '/ifttt/v1/actions/create_new_thing',
   (req: Request, res: Response) => {
     console.log('/ifttt/v1/actions/create_new_thing')
-    const key = req.get('IFTTT-Service-Key')
-
-    if (key !== IFTTT_SERVICE_KEY) {
-      console.log(
-        '/ifttt/v1/actions/create_new_thing Channel/Service key is not correct'
-      )
-      res.status(401).send({
-        errors: [{ message: 'Channel/Service key is not correct' }],
-      })
+    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+      res
+        .status(401)
+        .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
       return
     }
 
@@ -155,10 +132,9 @@ app.post(
 // listen for requests :)
 
 app.get('/', (req: Request, res: Response) => {
-  console.log('render index.ejs')
   res.render('index.ejs')
 })
 
-const listener = app.listen(process.env.PORT, function () {
+const listener = app.listen(process.env.PORT, () => {
   console.log('app is listening on port ' + listener.address().port)
 })
