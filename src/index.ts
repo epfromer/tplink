@@ -73,6 +73,7 @@ app.post(
 app.post('/ifttt/v1/queries/list_all_things', (req: Request, res: Response) => {
   console.log('/ifttt/v1/queries/list_all_things')
   if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+    console.log(req.get('IFTTT-Service-Key'), ' not valid')
     res
       .status(401)
       .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
