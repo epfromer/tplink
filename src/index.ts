@@ -43,12 +43,11 @@ app.post(
     const key = req.get('IFTTT-Service-Key')
 
     if (key !== IFTTT_SERVICE_KEY) {
+      console.log(
+        '/ifttt/v1/triggers/new_thing_created Channel/Service key is not correct'
+      )
       res.status(401).send({
-        errors: [
-          {
-            message: 'Channel/Service key is not correct',
-          },
-        ],
+        errors: [{ message: 'Channel/Service key is not correct' }],
       })
     }
 
@@ -72,6 +71,9 @@ app.post(
       }
     }
 
+    console.log(
+      '/ifttt/v1/triggers/new_thing_created Channel/Service sending status 200'
+    )
     res.status(200).send({
       data: data,
     })
@@ -85,12 +87,11 @@ app.post('/ifttt/v1/queries/list_all_things', (req: Request, res: Response) => {
   const key = req.get('IFTTT-Service-Key')
 
   if (key !== IFTTT_SERVICE_KEY) {
+    console.log(
+      '/ifttt/v1/queries/list_all_things Channel/Service key is not correct'
+    )
     res.status(401).send({
-      errors: [
-        {
-          message: 'Channel/Service key is not correct',
-        },
-      ],
+      errors: [{ message: 'Channel/Service key is not correct' }],
     })
   }
 
@@ -134,21 +135,16 @@ app.post(
     const key = req.get('IFTTT-Service-Key')
 
     if (key !== IFTTT_SERVICE_KEY) {
+      console.log(
+        '/ifttt/v1/actions/create_new_thing Channel/Service key is not correct'
+      )
       res.status(401).send({
-        errors: [
-          {
-            message: 'Channel/Service key is not correct',
-          },
-        ],
+        errors: [{ message: 'Channel/Service key is not correct' }],
       })
     }
 
     res.status(200).send({
-      data: [
-        {
-          id: generateUniqueId(),
-        },
-      ],
+      data: [{ id: generateUniqueId() }],
     })
   }
 )
