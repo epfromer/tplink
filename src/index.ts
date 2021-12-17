@@ -49,6 +49,7 @@ app.post(
       res.status(401).send({
         errors: [{ message: 'Channel/Service key is not correct' }],
       })
+      return
     }
 
     const data = []
@@ -93,6 +94,7 @@ app.post('/ifttt/v1/queries/list_all_things', (req: Request, res: Response) => {
     res.status(401).send({
       errors: [{ message: 'Channel/Service key is not correct' }],
     })
+    return
   }
 
   const data = []
@@ -141,6 +143,7 @@ app.post(
       res.status(401).send({
         errors: [{ message: 'Channel/Service key is not correct' }],
       })
+      return
     }
 
     res.status(200).send({
