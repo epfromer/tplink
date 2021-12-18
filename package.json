@@ -3,17 +3,19 @@
   "version": "0.0.1",
   "description": "A tp-link / IFTTT shim.",
   "license": "MIT",
-  "main": "./dist/server.js",
-  "types": "./dist/server.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "engines": {
     "node": "16.x"
   },
   "scripts": {
     "build": "run-s clean compile",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build --verbose"
+    "compile": "tsc --build --verbose",
+    "start": "node dist/index.js"
   },
   "dependencies": {
+    "axios-curlirize": "1.3.7",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "tplink-cloud-api": "^0.8.1"

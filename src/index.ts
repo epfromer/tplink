@@ -1,9 +1,13 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
 import path from 'path'
-import login from 'tplink-cloud-api'
+// import login from 'tplink-cloud-api'
+
 import serviceKeyCheck from './middleware'
 import generateUniqueId from './util'
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { login } = require('tplink-cloud-api')
 
 const app = express()
 const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY
