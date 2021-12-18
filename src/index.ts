@@ -83,9 +83,9 @@ app.post(
       return
     }
 
-    const tplink = await login(process.env.TPLINK_USER, process.env.TPLINK_PWD)
-    const deviceList = await tplink.getDeviceList()
-    console.log(deviceList)
+    // const tplink = await login(process.env.TPLINK_USER, process.env.TPLINK_PWD)
+    // const deviceList = await tplink.getDeviceList()
+    // console.log(deviceList)
 
     const data = []
     let numOfItems = req.body.limit
