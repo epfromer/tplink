@@ -138,6 +138,21 @@ app.post(
   }
 )
 
+// action: turn device on
+app.post('/ifttt/v1/actions/device_on', (req: Request, res: Response) => {
+  console.log('/ifttt/v1/actions/device_on')
+  if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+    res
+      .status(401)
+      .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
+    return
+  }
+
+  res.status(200).send({
+    data: [{ id: generateUniqueId() }],
+  })
+})
+
 // listen for requests :)
 
 app.get('/', (req: Request, res: Response) => {
