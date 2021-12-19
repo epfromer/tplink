@@ -27,7 +27,7 @@ app.post(
     res.status(200).send({
       data: {
         samples: {
-          actionRecordSkipping: { create_new_thing: { invalid: 'true' } },
+          actions: { create_new_thing: { thing_name: 'my thing' } },
         },
       },
     })
