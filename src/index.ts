@@ -132,7 +132,18 @@ app.post(
       return
     }
 
-    console.log(req.body)
+    // console.log(req.body)
+    if (!req.body.actionFields || !req.body.actionFields.thing_name) {
+      res.status(400).send({
+        errors: [
+          {
+            status: 'SKIP',
+            message: 'thing_name not supplied',
+          },
+        ],
+      })
+      return
+    }
 
     res.status(200).send({
       data: [{ id: generateUniqueId() }],
