@@ -27,7 +27,7 @@ app.post(
     res.status(200).send({
       data: {
         samples: {
-          actions: { create_new_thing: { thing_name: 'my thing' } },
+          actions: { turn_device_on: { device_name: 'some device' } },
         },
       },
     })
@@ -120,44 +120,26 @@ app.post(
   }
 )
 
-// action: create a new thing
-app.post(
-  '/ifttt/v1/actions/create_new_thing',
-  (req: Request, res: Response) => {
-    console.log('/ifttt/v1/actions/create_new_thing')
-    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-      res
-        .status(401)
-        .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
-      return
-    }
-
-    // console.log(req.body)
-    if (!req.body.actionFields || !req.body.actionFields.thing_name) {
-      res.status(400).send({
-        errors: [
-          {
-            status: 'SKIP',
-            message: 'thing_name not supplied',
-          },
-        ],
-      })
-      return
-    }
-
-    res.status(200).send({
-      data: [{ id: generateUniqueId() }],
-    })
-  }
-)
-
 // action: turn device on
-app.post('/ifttt/v1/actions/device_on', (req: Request, res: Response) => {
-  console.log('/ifttt/v1/actions/device_on')
+app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
+  console.log('/ifttt/v1/actions/turn_device_on')
   if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
     res
       .status(401)
       .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
+    return
+  }
+
+  // console.log(req.body)
+  if (!req.body.actionFields || !req.body.actionFields.device_name) {
+    res.status(400).send({
+      errors: [
+        {
+          status: 'SKIP',
+          message: 'device name not supplied',
+        },
+      ],
+    })
     return
   }
 
