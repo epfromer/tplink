@@ -73,6 +73,42 @@ app.post(
   }
 )
 
+// trigger: device turned on
+app.post(
+  '/ifttt/v1/triggers/device_turned_off',
+  (req: Request, res: Response) => {
+    console.log('/ifttt/v1/triggers/device_turned_off')
+    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+      res
+        .status(401)
+        .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
+      return
+    }
+
+    const data = []
+    let numOfItems = req.body.limit
+
+    if (typeof numOfItems === 'undefined') {
+      // Setting the default if limit doesn't exist.
+      numOfItems = 3
+    }
+
+    if (numOfItems >= 1) {
+      for (let i = 0; i < numOfItems; i += 1) {
+        data.push({
+          turned_off_at: new Date().toISOString(), // Must be a valid ISOString
+          meta: {
+            id: generateUniqueId(),
+            timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
+          },
+        })
+      }
+    }
+
+    res.status(200).send({ data: data })
+  }
+)
+
 // query: list all devices
 app.post(
   '/ifttt/v1/queries/list_all_devices',
