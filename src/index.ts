@@ -73,11 +73,11 @@ app.post(
   }
 )
 
-// query: list all things
+// query: list all devices
 app.post(
-  '/ifttt/v1/queries/list_all_things',
+  '/ifttt/v1/queries/list_all_devices',
   async (req: Request, res: Response) => {
-    console.log('/ifttt/v1/queries/list_all_things')
+    console.log('/ifttt/v1/queries/list_all_devices')
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
       console.log(req.get('IFTTT-Service-Key'), ' not valid')
       res
