@@ -27,7 +27,10 @@ app.post(
     res.status(200).send({
       data: {
         samples: {
-          actions: { turn_device_on: { device_name: 'some device' } },
+          actions: {
+            turn_device_on: { device_name: 'some device' },
+            turn_device_off: { device_name: 'some device' },
+          },
         },
       },
     })
@@ -148,8 +151,35 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
   })
 })
 
-// listen for requests :)
+// action: turn device off
+app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
+  console.log('/ifttt/v1/actions/turn_device_off')
+  if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+    res
+      .status(401)
+      .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
+    return
+  }
 
+  // console.log(req.body)
+  if (!req.body.actionFields || !req.body.actionFields.device_name) {
+    res.status(400).send({
+      errors: [
+        {
+          status: 'SKIP',
+          message: 'device name not supplied',
+        },
+      ],
+    })
+    return
+  }
+
+  res.status(200).send({
+    data: [{ id: generateUniqueId() }],
+  })
+})
+
+// listen for requests
 app.get('/', (req: Request, res: Response) => {
   res.render('index.ejs')
 })
