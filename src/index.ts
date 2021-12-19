@@ -37,11 +37,11 @@ app.post(
   }
 )
 
-// trigger: new thing created
+// trigger: device turned on
 app.post(
-  '/ifttt/v1/triggers/new_thing_created',
+  '/ifttt/v1/triggers/device_turned_on',
   (req: Request, res: Response) => {
-    console.log('/ifttt/v1/triggers/new_thing_created')
+    console.log('/ifttt/v1/triggers/device_turned_on')
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
       res
         .status(401)
@@ -60,7 +60,7 @@ app.post(
     if (numOfItems >= 1) {
       for (let i = 0; i < numOfItems; i += 1) {
         data.push({
-          created_at: new Date().toISOString(), // Must be a valid ISOString
+          turned_on_at: new Date().toISOString(), // Must be a valid ISOString
           meta: {
             id: generateUniqueId(),
             timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
