@@ -26,8 +26,8 @@ app.post(
       data: {
         samples: {
           actions: {
-            turn_device_on: { device_name: 'some device', duration: 5 },
-            turn_device_off: { device_name: 'some device' },
+            turn_device_on: { device_name: 'test device', duration: 5 },
+            turn_device_off: { device_name: 'test device' },
           },
         },
       },
@@ -245,9 +245,7 @@ app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
   const deviceId = req.body.actionFields.device_name
   turnDeviceOff(deviceId)
 
-  res.status(200).send({
-    data: [{ id: deviceId }],
-  })
+  res.status(200).send({ data: [{ id: deviceId }] })
 })
 
 const listener = app.listen(process.env.PORT, () => {
