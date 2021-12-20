@@ -1,8 +1,8 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
 import fetch from 'node-fetch'
-import { v4 } from 'uuid'
 import serviceKeyCheck from './middleware.js'
+import { getDevices } from './tplink.js'
 import generateUniqueId from './util.js'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -121,53 +121,13 @@ app.post(
       return
     }
 
-    const termid = v4()
-    const url = 'https://wap.tplinkcloud.com'
-    let r = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        method: 'login',
-        params: {
-          appType: 'Kasa_Android',
-          cloudUserName: process.env.TPLINK_USER,
-          cloudPassword: process.env.TPLINK_PWD,
-          terminalUUID: termid,
-        },
-      }),
-    })
-    let json: any = await r.json()
-    const token = json.result.token
-
-    // get device list
-    r = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        method: 'getDeviceList',
-        params: {
-          appType: 'Kasa_Android',
-          token,
-          terminalUUID: termid,
-        },
-      }),
-    })
-    json = await r.json()
-    console.log(json.result.deviceList)
-
-    console.log('limit = ', req.body.limit)
-
-    // TODO - cursor
-    const cursor = null
-    const data = json.result.deviceList.map((dev) => ({
+    const devices = await getDevices()
+    const data = devices.map((dev) => ({
       deviceName: dev.alias,
     }))
 
     /*
+    TODO - cursor
     const data = []
     let numOfItems = req.body.limit
 
@@ -196,14 +156,14 @@ app.post(
 
     res.status(200).send({
       data: data,
-      cursor: cursor,
+      cursor: null,
     })
   }
 )
 
 app.post(
   '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options')
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
       res
@@ -212,17 +172,13 @@ app.post(
       return
     }
 
+    const devices = await getDevices()
+
     res.status(200).send({
-      data: [
-        {
-          label: 'Street Art',
-          value: '12345',
-        },
-        {
-          label: 'Technology',
-          value: '43245',
-        },
-      ],
+      data: devices.map((dev) => ({
+        label: dev.deviceName,
+        value: dev.deviceName,
+      })),
     })
   }
 )
