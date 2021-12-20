@@ -193,9 +193,7 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
     setTimeout(() => turnDeviceOff(deviceId), duration * 1000)
   }
 
-  res.status(200).send({
-    data: [{ id: generateUniqueId() }],
-  })
+  res.status(200).send({ data: [{ id: deviceId }] })
 })
 
 // list of devices for action to turn device off
@@ -244,8 +242,11 @@ app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
     return
   }
 
+  const deviceId = req.body.actionFields.device_name
+  turnDeviceOff(deviceId)
+
   res.status(200).send({
-    data: [{ id: generateUniqueId() }],
+    data: [{ id: deviceId }],
   })
 })
 
