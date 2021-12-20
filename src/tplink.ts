@@ -39,6 +39,6 @@ export async function getDevices() {
     }),
   })
   json = await r.json()
-  console.log(json.result.deviceList)
+  // console.log(json.result.deviceList)
   return json.result.deviceList
 }

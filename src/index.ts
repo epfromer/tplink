@@ -121,7 +121,7 @@ app.post(
     }
 
     const devices = await getDevices()
-    const data = devices.map((dev) => ({
+    let data = devices.map((dev) => ({
       deviceName: dev.alias,
     }))
 
@@ -146,17 +146,16 @@ app.post(
         })
       }
     }
-
-
-    if (req.body.limit == 1) {
-      cursor = generateUniqueId()
-    }
     */
 
-    res.status(200).send({
-      data: data,
-      cursor: null,
-    })
+    let cursor = null
+    if (req.body.limit) {
+      // TODO - cursor; right now, return index into array of last item sent
+      data = data.slice(0, req.body.limit)
+      cursor = req.body.limit < data.length ? req.body.limit - 1 : data.length
+    }
+
+    res.status(200).send({ data, cursor })
   }
 )
 
