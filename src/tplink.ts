@@ -3,9 +3,9 @@ import { v4 } from 'uuid'
 
 const url = 'https://wap.tplinkcloud.com'
 
-export async function getDevices() {
+const connect = async () => {
   const termid = v4()
-  let r = await fetch(url, {
+  const r = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -20,11 +20,17 @@ export async function getDevices() {
       },
     }),
   })
-  let json: any = await r.json()
+  const json: any = await r.json()
   const token = json.result.token
 
+  return { termid, token }
+}
+
+export async function getDevices() {
+  const { termid, token } = await connect()
+
   // get device list
-  r = await fetch(url, {
+  const r = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -38,7 +44,7 @@ export async function getDevices() {
       },
     }),
   })
-  json = await r.json()
+  const json: any = await r.json()
   // console.log(json.result.deviceList)
   return json.result.deviceList
 }
