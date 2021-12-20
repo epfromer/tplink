@@ -26,7 +26,7 @@ app.post(
       data: {
         samples: {
           actions: {
-            turn_device_on: { device_name: 'some device' },
+            turn_device_on: { device_name: 'some device', duration: 5 },
             turn_device_off: { device_name: 'some device' },
           },
         },
