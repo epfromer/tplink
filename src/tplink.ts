@@ -52,47 +52,51 @@ export async function getDevices() {
 export async function turnDeviceOn(deviceId: string) {
   const devices = await getDevices()
   const device = devices.find((dev) => dev.deviceId === deviceId)
-  const { termid, token } = await connect()
-  await fetch(device.appServerUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      method: 'passthrough',
-      params: {
-        appType: 'Kasa_Android',
-        token,
-        terminalUUID: termid,
-        deviceId,
-        requestData: {
-          system: { set_relay_state: { state: 1 } },
-        },
+  if (device) {
+    const { termid, token } = await connect()
+    await fetch(device.appServerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }),
-  })
+      body: JSON.stringify({
+        method: 'passthrough',
+        params: {
+          appType: 'Kasa_Android',
+          token,
+          terminalUUID: termid,
+          deviceId,
+          requestData: {
+            system: { set_relay_state: { state: 1 } },
+          },
+        },
+      }),
+    })
+  }
 }
 
 export async function turnDeviceOff(deviceId: string) {
   const devices = await getDevices()
   const device = devices.find((dev) => dev.deviceId === deviceId)
-  const { termid, token } = await connect()
-  await fetch(device.appServerUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      method: 'passthrough',
-      params: {
-        appType: 'Kasa_Android',
-        token,
-        terminalUUID: termid,
-        deviceId,
-        requestData: {
-          system: { set_relay_state: { state: 0 } },
-        },
+  if (device) {
+    const { termid, token } = await connect()
+    await fetch(device.appServerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }),
-  })
+      body: JSON.stringify({
+        method: 'passthrough',
+        params: {
+          appType: 'Kasa_Android',
+          token,
+          terminalUUID: termid,
+          deviceId,
+          requestData: {
+            system: { set_relay_state: { state: 0 } },
+          },
+        },
+      }),
+    })
+  }
 }

@@ -184,15 +184,13 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
   }
 
   const duration = +req.body.actionFields.duration
+  const deviceId = req.body.actionFields.device_name
 
-  turnDeviceOn(req.body.actionFields.device_name)
+  turnDeviceOn(deviceId)
+
   // check that duration is < 24 hours
   if (duration > 0 && duration < 60 * 60 * 24) {
-    console.log(duration)
-    setTimeout(
-      () => turnDeviceOff(req.body.actionFields.device_name),
-      duration * 1000
-    )
+    setTimeout(() => turnDeviceOff(deviceId), duration * 1000)
   }
 
   res.status(200).send({
