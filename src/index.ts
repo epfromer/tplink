@@ -1,6 +1,5 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
-import fetch from 'node-fetch'
 import serviceKeyCheck from './middleware.js'
 import { getDevices } from './tplink.js'
 import generateUniqueId from './util.js'

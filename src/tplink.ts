@@ -1,3 +1,4 @@
+import fetch from 'node-fetch'
 import { v4 } from 'uuid'
 
 const url = 'https://wap.tplinkcloud.com'
