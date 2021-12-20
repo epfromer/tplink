@@ -72,7 +72,7 @@ app.post(
   }
 )
 
-// trigger: device turned on
+// trigger: device turned off
 app.post(
   '/ifttt/v1/triggers/device_turned_off',
   (req: Request, res: Response) => {
@@ -168,7 +168,6 @@ app.post(
     }))
 
     /*
-
     const data = []
     let numOfItems = req.body.limit
 
@@ -198,6 +197,32 @@ app.post(
     res.status(200).send({
       data: data,
       cursor: cursor,
+    })
+  }
+)
+
+app.post(
+  '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
+  (req: Request, res: Response) => {
+    console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options')
+    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+      res
+        .status(401)
+        .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
+      return
+    }
+
+    res.status(200).send({
+      data: [
+        {
+          label: 'Street Art',
+          value: '12345',
+        },
+        {
+          label: 'Technology',
+          value: '43245',
+        },
+      ],
     })
   }
 )
