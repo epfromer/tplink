@@ -48,3 +48,12 @@ export async function getDevices() {
   // console.log(json.result.deviceList)
   return json.result.deviceList
 }
+
+export async function turnDeviceOn(deviceId: string) {
+  const devices = await getDevices()
+
+  const device = devices.find((dev) => (dev.deviceId = deviceId))
+  console.log(device)
+
+  // const { termid, token } = await connect()
+}

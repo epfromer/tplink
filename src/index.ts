@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
 import serviceKeyCheck from './middleware.js'
-import { getDevices } from './tplink.js'
+import { getDevices, turnDeviceOn } from './tplink.js'
 import generateUniqueId from './util.js'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -185,6 +185,8 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
 
   console.log(req.body.actionFields.device_name)
   console.log(req.body.actionFields.duration)
+
+  turnDeviceOn(req.body.actionFields.device_name)
 
   res.status(200).send({
     data: [{ id: generateUniqueId() }],
