@@ -1,6 +1,8 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
+import fetch from 'node-fetch'
 import path from 'path'
+import { v4 } from 'uuid'
 import serviceKeyCheck from './middleware'
 import generateUniqueId from './util'
 
@@ -122,9 +124,43 @@ app.post(
       return
     }
 
-    // const tplink = await login(process.env.TPLINK_USER, process.env.TPLINK_PWD)
-    // const deviceList = await tplink.getDeviceList()
-    // console.log(deviceList)
+    const termid = v4()
+    const url = 'https://wap.tplinkcloud.com'
+    let r = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        method: 'login',
+        params: {
+          appType: 'Kasa_Android',
+          cloudUserName: process.env.TPLINK_USER,
+          cloudPassword: process.env.TPLINK_PWD,
+          terminalUUID: termid,
+        },
+      }),
+    })
+    let json: any = await r.json()
+    const token = json.result.token
+
+    // get device list
+    r = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        method: 'getDeviceList',
+        params: {
+          appType: 'Kasa_Android',
+          token,
+          terminalUUID: termid,
+        },
+      }),
+    })
+    json = await r.json()
+    console.log(json)
 
     const data = []
     let numOfItems = req.body.limit
