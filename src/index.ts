@@ -154,7 +154,7 @@ app.post(
     res.status(200).send({
       data: devices.map((dev) => ({
         label: dev.alias,
-        value: dev.alias,
+        value: dev.deviceId,
       })),
     })
   }
@@ -208,7 +208,7 @@ app.post(
     res.status(200).send({
       data: devices.map((dev) => ({
         label: dev.alias,
-        value: dev.alias,
+        value: dev.deviceId,
       })),
     })
   }
