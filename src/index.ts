@@ -190,7 +190,7 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
 
 // list of devices for action to turn device off
 app.post(
-  '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
+  '/ifttt/v1/actions/turn_device_off/fields/device_name/options',
   async (req: Request, res: Response) => {
     console.log('/ifttt/v1/actions/turn_device_off/fields/device_name/options')
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
