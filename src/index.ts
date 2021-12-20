@@ -1,18 +1,15 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
 import fetch from 'node-fetch'
-import path from 'path'
 import { v4 } from 'uuid'
-import serviceKeyCheck from './middleware'
-import generateUniqueId from './util'
+import serviceKeyCheck from './middleware.js'
+import generateUniqueId from './util.js'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const app = express()
 const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY
 
 app.use(bodyParser.json())
-app.set('view engine', 'ejs')
-app.set('views', path.join(__dirname, '/views'))
 
 // get status of service
 app.get('/ifttt/v1/status', serviceKeyCheck, (req: Request, res: Response) => {
@@ -249,11 +246,6 @@ app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
   res.status(200).send({
     data: [{ id: generateUniqueId() }],
   })
-})
-
-// listen for requests
-app.get('/', (req: Request, res: Response) => {
-  res.render('index.ejs')
 })
 
 const listener = app.listen(process.env.PORT, () => {

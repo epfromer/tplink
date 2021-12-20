@@ -7,7 +7,6 @@
     "composite": true,
     "declaration": true,
     "esModuleInterop": true,
-    "module": "esnext",
     "moduleResolution": "node",
     "outDir": "./dist",
     "paths": {
@@ -19,6 +18,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "target": "esnext",
+    "module": "esnext", 
     "lib": [
       "esnext"
     ]
