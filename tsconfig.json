@@ -7,7 +7,7 @@
     "composite": true,
     "declaration": true,
     "esModuleInterop": true,
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "outDir": "./dist",
     "paths": {
