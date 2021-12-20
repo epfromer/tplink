@@ -157,7 +157,7 @@ app.post(
       }),
     })
     json = await r.json()
-    console.log(json)
+    console.log(json.result.deviceList)
 
     const data = []
     let numOfItems = req.body.limit
