@@ -159,6 +159,16 @@ app.post(
     json = await r.json()
     console.log(json.result.deviceList)
 
+    console.log('limit = ', req.body.limit)
+
+    // TODO - cursor
+    const cursor = null
+    const data = json.result.deviceList.map((dev) => ({
+      deviceName: dev.alias,
+    }))
+
+    /*
+
     const data = []
     let numOfItems = req.body.limit
 
@@ -179,11 +189,11 @@ app.post(
       }
     }
 
-    let cursor = null
 
     if (req.body.limit == 1) {
       cursor = generateUniqueId()
     }
+    */
 
     res.status(200).send({
       data: data,
