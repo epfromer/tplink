@@ -183,6 +183,9 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
     return
   }
 
+  console.log(req.body.actionFields.device_name)
+  console.log(req.body.actionFields.duration)
+
   res.status(200).send({
     data: [{ id: generateUniqueId() }],
   })
