@@ -137,6 +137,7 @@ app.post(
   }
 )
 
+// list of devices for action to turn device on
 app.post(
   '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
   async (req: Request, res: Response) => {
@@ -186,6 +187,29 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
     data: [{ id: generateUniqueId() }],
   })
 })
+
+// list of devices for action to turn device off
+app.post(
+  '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
+  async (req: Request, res: Response) => {
+    console.log('/ifttt/v1/actions/turn_device_off/fields/device_name/options')
+    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
+      res
+        .status(401)
+        .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
+      return
+    }
+
+    const devices = await getDevices()
+
+    res.status(200).send({
+      data: devices.map((dev) => ({
+        label: dev.deviceName,
+        value: dev.deviceName,
+      })),
+    })
+  }
+)
 
 // action: turn device off
 app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
