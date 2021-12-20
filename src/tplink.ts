@@ -52,7 +52,7 @@ export async function getDevices() {
 export async function turnDeviceOn(deviceId: string) {
   const devices = await getDevices()
 
-  const device = devices.find((dev) => (dev.deviceId = deviceId))
+  const device = devices.find((dev) => dev.deviceId === deviceId)
   console.log(device)
 
   // const { termid, token } = await connect()
