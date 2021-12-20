@@ -125,34 +125,12 @@ app.post(
       deviceName: dev.alias,
     }))
 
-    /*
-    TODO - cursor
-    const data = []
-    let numOfItems = req.body.limit
-
-    if (typeof numOfItems === 'undefined') {
-      // Setting the default if limit doesn't exist.
-      numOfItems = 3
-    }
-
-    if (numOfItems >= 1) {
-      for (let i = 0; i < numOfItems; i += 1) {
-        data.push({
-          created_at: new Date().toISOString(), // Must be a valid ISOString
-          meta: {
-            id: generateUniqueId(),
-            timestamp: Math.floor(Date.now() / 1000), // timestamp in seconds
-          },
-        })
-      }
-    }
-    */
-
     let cursor = null
     if (req.body.limit) {
-      // TODO - cursor; right now, return index into array of last item sent
+      // TODO - cursor; right now, return 0 based index for next item
       data = data.slice(0, req.body.limit)
-      cursor = req.body.limit < data.length ? req.body.limit - 1 : data.length
+      cursor = req.body.limit < data.length ? req.body.limit : data.length
+      cursor = String(cursor)
     }
 
     res.status(200).send({ data, cursor })
