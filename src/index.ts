@@ -4,7 +4,9 @@ import serviceKeyCheck from './middleware.js'
 import { getDevices, turnDeviceOff, turnDeviceOn } from './tplink.js'
 import generateUniqueId from './util.js'
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// another way to introduce a delay
+// https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
+
 const app = express()
 const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY
 
