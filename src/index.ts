@@ -193,8 +193,8 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
     console.log(`turning device ${deviceId} on for ${duration} seconds`)
     setTimeout(() => {
       console.log(`turning device ${deviceId} off`)
-      turnDeviceOff(deviceId), duration * 1000
-    })
+      turnDeviceOff(deviceId)
+    }, duration * 1000)
   }
 
   res.status(200).send({ data: [{ id: deviceId }] })
