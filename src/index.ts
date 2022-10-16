@@ -13,6 +13,9 @@ const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY
 app.use(bodyParser.json())
 
 // get status of service
+app.get('/', function (req, res) {
+  res.send('tplink-ifttt-shim: Service shim for linking tp-link to IFTTT')
+})
 app.get('/ifttt/v1/status', serviceKeyCheck, (req: Request, res: Response) => {
   console.log('/ifttt/v1/status')
   res.status(200).send()
