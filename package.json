@@ -3,18 +3,15 @@
   "version": "0.0.1",
   "description": "A tp-link / IFTTT shim.",
   "license": "MIT",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "type": "module",
   "engines": {
     "node": "16.x"
   },
   "scripts": {
-    "build": "run-s clean compile",
-    "clean": "rimraf dist tsconfig.tsbuildinfo",
-    "compile": "tsc --build --verbose",
-    "start": "node dist/index.js",
-    "yarn": "yarn"
+    "build": "yarn install && tsc --build --verbose",
+    "start": "node build/index.js"
   },
   "dependencies": {
     "ejs": "^3.1.8",

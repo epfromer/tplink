@@ -18,7 +18,7 @@ app.get('/ifttt/v1/status', serviceKeyCheck, (req: Request, res: Response) => {
   res.status(200).send()
 })
 
-// setup tests
+// setup tests (required by IFTTT)
 app.post(
   '/ifttt/v1/test/setup',
   serviceKeyCheck,
