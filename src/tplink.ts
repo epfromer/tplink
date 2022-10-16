@@ -55,7 +55,7 @@ export async function turnDeviceOn(deviceId: string) {
     console.error('no TPLINK devices found')
     return
   }
-  const device = devices.find((dev) => dev.deviceId === deviceId)
+  const device = devices.find((dev: any) => dev.deviceId === deviceId)
   if (!device) {
     console.error(`TPLINK device ${deviceId} found`)
     return
@@ -87,7 +87,7 @@ export async function turnDeviceOff(deviceId: string) {
     console.error('no TPLINK devices found')
     return
   }
-  const device = devices.find((dev) => dev.deviceId === deviceId)
+  const device = devices.find((dev: any) => dev.deviceId === deviceId)
   if (!device) {
     console.error(`TPLINK device ${deviceId} found`)
     return

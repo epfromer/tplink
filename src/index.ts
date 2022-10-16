@@ -123,7 +123,7 @@ app.post(
     }
 
     const devices = await getDevices()
-    let data = devices.map((dev) => ({
+    let data = devices.map((dev: any) => ({
       deviceName: dev.alias,
     }))
 
@@ -154,7 +154,7 @@ app.post(
     const devices = await getDevices()
 
     res.status(200).send({
-      data: devices.map((dev) => ({
+      data: devices.map((dev: any) => ({
         label: dev.alias,
         value: dev.deviceId,
       })),
@@ -217,7 +217,7 @@ app.post(
     const devices = await getDevices()
 
     res.status(200).send({
-      data: devices.map((dev) => ({
+      data: devices.map((dev: any) => ({
         label: dev.alias,
         value: dev.deviceId,
       })),
@@ -254,6 +254,7 @@ app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
   res.status(200).send({ data: [{ id: deviceId }] })
 })
 
-const listener = app.listen(process.env.PORT, () => {
-  console.log('app is listening on port ' + listener.address().port)
-})
+const port = process.env.PORT || 3000
+app.listen(port, () =>
+  console.log(`tplink-ifttt-shim running on PORT: ${port}`)
+)
