@@ -8,17 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.turnDeviceOff = exports.turnDeviceOn = exports.getDevices = void 0;
-const node_fetch_1 = __importDefault(require("node-fetch"));
 const uuid_1 = require("uuid");
 const url = 'https://wap.tplinkcloud.com';
 const connect = () => __awaiter(void 0, void 0, void 0, function* () {
     const termid = (0, uuid_1.v4)();
-    const r = yield (0, node_fetch_1.default)(url, {
+    const r = yield fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -41,7 +37,7 @@ function getDevices() {
     return __awaiter(this, void 0, void 0, function* () {
         const { termid, token } = yield connect();
         // get device list
-        const r = yield (0, node_fetch_1.default)(url, {
+        const r = yield fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -74,7 +70,7 @@ function turnDeviceOn(deviceId) {
             return;
         }
         const { termid, token } = yield connect();
-        yield (0, node_fetch_1.default)(device.appServerUrl, {
+        yield fetch(device.appServerUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,7 +104,7 @@ function turnDeviceOff(deviceId) {
             return;
         }
         const { termid, token } = yield connect();
-        yield (0, node_fetch_1.default)(device.appServerUrl, {
+        yield fetch(device.appServerUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
