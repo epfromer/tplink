@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.turnDeviceOff = exports.turnDeviceOn = exports.getDevices = void 0;
 const uuid_1 = require("uuid");
 const url = 'https://wap.tplinkcloud.com';
+const VERBOSE = process.env.VERBOSE;
 const connect = () => __awaiter(void 0, void 0, void 0, function* () {
     const termid = (0, uuid_1.v4)();
     const r = yield fetch(url, {
@@ -31,11 +32,19 @@ const connect = () => __awaiter(void 0, void 0, void 0, function* () {
     });
     const json = yield r.json();
     const token = json.result.token;
+    if (!token)
+        console.error('connect: no tplink connect token', json);
+    if (VERBOSE)
+        console.log(`termid ${termid}, token ${token}`);
     return { termid, token };
 });
 function getDevices() {
     return __awaiter(this, void 0, void 0, function* () {
         const { termid, token } = yield connect();
+        if (!termid || !token) {
+            console.error('getDevices no tplink termid or token');
+            return [];
+        }
         // get device list
         const r = yield fetch(url, {
             method: 'POST',
@@ -52,7 +61,12 @@ function getDevices() {
             }),
         });
         const json = yield r.json();
-        // console.log(json.result.deviceList)
+        if (!json.result.deviceList || json.result.deviceList.length) {
+            console.error('getDevices device list null or empty');
+            return [];
+        }
+        if (VERBOSE)
+            console.log('device list', json.result.deviceList);
         return json.result.deviceList;
     });
 }
@@ -61,12 +75,12 @@ function turnDeviceOn(deviceId) {
     return __awaiter(this, void 0, void 0, function* () {
         const devices = yield getDevices();
         if (!devices.length) {
-            console.error('no TPLINK devices found');
+            console.error('getDevices no TPLINK devices found');
             return;
         }
         const device = devices.find((dev) => dev.deviceId === deviceId);
         if (!device) {
-            console.error(`TPLINK device ${deviceId} found`);
+            console.error(`getDevices TPLINK device ${deviceId} found`);
             return;
         }
         const { termid, token } = yield connect();
@@ -95,12 +109,12 @@ function turnDeviceOff(deviceId) {
     return __awaiter(this, void 0, void 0, function* () {
         const devices = yield getDevices();
         if (!devices.length) {
-            console.error('no TPLINK devices found');
+            console.error('turnDeviceOff no TPLINK devices found');
             return;
         }
         const device = devices.find((dev) => dev.deviceId === deviceId);
         if (!device) {
-            console.error(`TPLINK device ${deviceId} found`);
+            console.error(`turnDeviceOff TPLINK device ${deviceId} found`);
             return;
         }
         const { termid, token } = yield connect();

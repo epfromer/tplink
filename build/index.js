@@ -21,15 +21,23 @@ const util_js_1 = __importDefault(require("./util.js"));
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
 const app = (0, express_1.default)();
 const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY;
+const VERBOSE = process.env.VERBOSE;
 app.use(body_parser_1.default.json());
 // get status of service
+app.get('/', function (req, res) {
+    if (VERBOSE)
+        console.log('/ status');
+    res.send('tplink-ifttt-shim: Service shim for linking tp-link to IFTTT');
+});
 app.get('/ifttt/v1/status', middleware_js_1.default, (req, res) => {
-    console.log('/ifttt/v1/status');
+    if (VERBOSE)
+        console.log('/ifttt/v1/status');
     res.status(200).send();
 });
 // setup tests (required by IFTTT)
 app.post('/ifttt/v1/test/setup', middleware_js_1.default, (req, res) => {
-    console.log('/ifttt/v1/test/setup');
+    if (VERBOSE)
+        console.log('/ifttt/v1/test/setup');
     res.status(200).send({
         data: {
             samples: {
@@ -43,7 +51,8 @@ app.post('/ifttt/v1/test/setup', middleware_js_1.default, (req, res) => {
 });
 // trigger: device turned on
 app.post('/ifttt/v1/triggers/device_turned_on', (req, res) => {
-    console.log('/ifttt/v1/triggers/device_turned_on');
+    if (VERBOSE)
+        console.log('/ifttt/v1/triggers/device_turned_on');
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
         res
             .status(401)
@@ -71,11 +80,16 @@ app.post('/ifttt/v1/triggers/device_turned_on', (req, res) => {
 });
 // trigger: device turned off
 app.post('/ifttt/v1/triggers/device_turned_off', (req, res) => {
-    console.log('/ifttt/v1/triggers/device_turned_off');
+    if (VERBOSE)
+        console.log('/ifttt/v1/triggers/device_turned_off');
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-        res
-            .status(401)
-            .send({ errors: [{ message: 'Channel/Service key is not correct' }] });
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/triggers/device_turned_off Channel/Service key is not correct',
+                },
+            ],
+        });
         return;
     }
     const data = [];
@@ -99,12 +113,17 @@ app.post('/ifttt/v1/triggers/device_turned_off', (req, res) => {
 });
 // query: list all devices
 app.post('/ifttt/v1/queries/list_all_devices', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('/ifttt/v1/queries/list_all_devices');
+    if (VERBOSE)
+        console.log('/ifttt/v1/queries/list_all_devices');
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-        console.log(req.get('IFTTT-Service-Key'), ' not valid');
-        res
-            .status(401)
-            .send({ errors: [{ message: 'Channel/Service key is not correct' }] });
+        console.error(req.get('IFTTT-Service-Key'), ' not valid');
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/queries/list_all_devices Channel/Service key is not correct',
+                },
+            ],
+        });
         return;
     }
     const devices = yield (0, tplink_js_1.getDevices)();
@@ -122,14 +141,30 @@ app.post('/ifttt/v1/queries/list_all_devices', (req, res) => __awaiter(void 0, v
 }));
 // list of devices for action to turn device on
 app.post('/ifttt/v1/actions/turn_device_on/fields/device_name/options', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options');
+    if (VERBOSE) {
+        console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options');
+    }
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-        res
-            .status(401)
-            .send({ errors: [{ message: 'Channel/Service key is not correct' }] });
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/actions/turn_device_on/fields/device_name/options Channel/Service key is not correct',
+                },
+            ],
+        });
         return;
     }
     const devices = yield (0, tplink_js_1.getDevices)();
+    if (!devices.length) {
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/actions/turn_device_on/fields/device_name/options no devices found',
+                },
+            ],
+        });
+        return;
+    }
     res.status(200).send({
         data: devices.map((dev) => ({
             label: dev.alias,
@@ -139,11 +174,16 @@ app.post('/ifttt/v1/actions/turn_device_on/fields/device_name/options', (req, re
 }));
 // action: turn device on
 app.post('/ifttt/v1/actions/turn_device_on', (req, res) => {
-    console.log('/ifttt/v1/actions/turn_device_on');
+    if (VERBOSE)
+        console.log('/ifttt/v1/actions/turn_device_on');
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-        res
-            .status(401)
-            .send({ errors: [{ message: 'Channel/Service key is not correct' }] });
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/actions/turn_device_on Channel/Service key is not correct',
+                },
+            ],
+        });
         return;
     }
     // console.log(req.body)
@@ -163,9 +203,12 @@ app.post('/ifttt/v1/actions/turn_device_on', (req, res) => {
     (0, tplink_js_1.turnDeviceOn)(deviceId);
     // check that duration is < 24 hours
     if (duration > 0 && duration < 60 * 60 * 24) {
-        console.log(`turning device ${deviceId} on for ${duration} seconds`);
+        if (VERBOSE) {
+            console.log(`turning device ${deviceId} on for ${duration} seconds`);
+        }
         setTimeout(() => {
-            console.log(`turning device ${deviceId} off`);
+            if (VERBOSE)
+                console.log(`turning device ${deviceId} off`);
             (0, tplink_js_1.turnDeviceOff)(deviceId);
         }, duration * 1000);
     }
@@ -173,14 +216,30 @@ app.post('/ifttt/v1/actions/turn_device_on', (req, res) => {
 });
 // list of devices for action to turn device off
 app.post('/ifttt/v1/actions/turn_device_off/fields/device_name/options', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('/ifttt/v1/actions/turn_device_off/fields/device_name/options');
+    if (VERBOSE) {
+        console.log('/ifttt/v1/actions/turn_device_off/fields/device_name/options');
+    }
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-        res
-            .status(401)
-            .send({ errors: [{ message: 'Channel/Service key is not correct' }] });
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/actions/turn_device_off/fields/device_name/options Channel/Service key is not correct',
+                },
+            ],
+        });
         return;
     }
     const devices = yield (0, tplink_js_1.getDevices)();
+    if (!devices.length) {
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/actions/turn_device_off/fields/device_name/options no devices found',
+                },
+            ],
+        });
+        return;
+    }
     res.status(200).send({
         data: devices.map((dev) => ({
             label: dev.alias,
@@ -190,14 +249,19 @@ app.post('/ifttt/v1/actions/turn_device_off/fields/device_name/options', (req, r
 }));
 // action: turn device off
 app.post('/ifttt/v1/actions/turn_device_off', (req, res) => {
-    console.log('/ifttt/v1/actions/turn_device_off');
+    if (VERBOSE)
+        console.log('/ifttt/v1/actions/turn_device_off');
     if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-        res
-            .status(401)
-            .send({ errors: [{ message: 'Channel/Service key is not correct' }] });
+        res.status(401).send({
+            errors: [
+                {
+                    message: '/ifttt/v1/actions/turn_device_off Channel/Service key is not correct',
+                },
+            ],
+        });
         return;
     }
-    // console.log(req.body)
+    // if (VERBOSE) console.log(req.body)
     if (!req.body.actionFields || !req.body.actionFields.device_name) {
         res.status(400).send({
             errors: [
