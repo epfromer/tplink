@@ -20,6 +20,7 @@ const connect = async () => {
     }),
   })
   const json: any = await r.json()
+  console.log('connect', json)
   const token = json.result.token
 
   return { termid, token }
@@ -44,7 +45,7 @@ export async function getDevices() {
     }),
   })
   const json: any = await r.json()
-  // console.log(json.result.deviceList)
+  console.log('device list', json.result.deviceList)
   return json.result.deviceList
 }
 
