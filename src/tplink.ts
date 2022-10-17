@@ -35,26 +35,32 @@ export async function getDevices() {
   }
 
   // get device list
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      method: 'getDeviceList',
-      params: {
-        appType: 'Kasa_Android',
-        token,
-        terminalUUID: termid,
+  let r
+  try {
+    r = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }),
-  })
-  const json: any = await r.json()
-  if (!json.result.deviceList || !json.result.deviceList.length) {
-    console.error('getDevices device list null or empty')
+      body: JSON.stringify({
+        method: 'getDeviceList',
+        params: {
+          appType: 'Kasa_Android',
+          token,
+          terminalUUID: termid,
+        },
+      }),
+    })
+  } catch (error) {
+    console.error('getDevices fetch', error)
     return []
   }
-  // if (VERBOSE) console.log('device list', json.result.deviceList)
+  const json: any = await r.json()
+  if (!json.result.deviceList || !json.result.deviceList.length) {
+    console.error('getDevices device list null or empty', json)
+    return []
+  }
+  // if (VERBOSE) console.log('getDevices', json.result.deviceList)
   return json.result.deviceList
 }
 
