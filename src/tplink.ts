@@ -4,35 +4,41 @@ const url = 'https://wap.tplinkcloud.com'
 const VERBOSE = process.env.VERBOSE ? true : false
 
 const connect = async () => {
-  const termid = v4()
-  const r = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      method: 'login',
-      params: {
-        appType: 'Kasa_Android',
-        cloudUserName: process.env.TPLINK_USER,
-        cloudPassword: process.env.TPLINK_PWD,
-        terminalUUID: termid,
+  const terminalUUID = v4()
+  let r
+  try {
+    r = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }),
-  })
+      body: JSON.stringify({
+        method: 'login',
+        params: {
+          appType: 'Kasa_Android',
+          cloudUserName: process.env.TPLINK_USER,
+          cloudPassword: process.env.TPLINK_PWD,
+          terminalUUID,
+        },
+      }),
+    })
+  } catch (error) {
+    console.error('connect fetch error', error)
+    return { terminalUUID: null, token: null }
+  }
   const json: any = await r.json()
+  if (VERBOSE) console.log('connect json', json)
   const token = json.result.token
-  if (!token) console.error('connect: no tplink connect token', json)
-  if (VERBOSE) console.log(`termid ${termid}, token ${token}`)
-  return { termid, token }
+  // if (!token) console.error('connect: no tplink connect token', json)
+  return { terminalUUID, token }
 }
 
 export async function getDevices() {
-  const { termid, token } = await connect()
-  if (!termid || !token) {
-    console.error('getDevices no tplink termid or token')
-    return []
-  }
+  const { terminalUUID, token } = await connect()
+  // if (!terminalUUID || !token) {
+  //   console.error('getDevices no tplink terminalUUID or token')
+  //   return []
+  // }
 
   // get device list
   let r
@@ -47,17 +53,21 @@ export async function getDevices() {
         params: {
           appType: 'Kasa_Android',
           token,
-          terminalUUID: termid,
+          terminalUUID,
         },
       }),
     })
   } catch (error) {
-    console.error('getDevices fetch', error)
+    console.error('getDevices fetch error', error)
     return []
   }
   const json: any = await r.json()
   if (VERBOSE) console.log('getDevices', json)
-  if (!json.result.deviceList || !json.result.deviceList.length) {
+  if (
+    !json.result ||
+    !json.result.deviceList ||
+    !json.result.deviceList.length
+  ) {
     console.error('getDevices device list null or empty', json)
     return []
   }
@@ -75,29 +85,33 @@ export async function turnDeviceOn(deviceId: string) {
     console.error(`turnDeviceOff TPLINK device ${deviceId} not found`)
     return
   }
-  const { termid, token } = await connect()
-  if (!termid || !token) {
-    console.error('turnDeviceOn no tplink termid or token')
-    return
-  }
-  await fetch(device.appServerUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      method: 'passthrough',
-      params: {
-        appType: 'Kasa_Android',
-        token,
-        terminalUUID: termid,
-        deviceId,
-        requestData: {
-          system: { set_relay_state: { state: 1 } },
-        },
+  const { terminalUUID, token } = await connect()
+  // if (!terminalUUID || !token) {
+  //   console.error('turnDeviceOn no tplink termid or token')
+  //   return
+  // }
+  try {
+    await fetch(device.appServerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }),
-  })
+      body: JSON.stringify({
+        method: 'passthrough',
+        params: {
+          appType: 'Kasa_Android',
+          token,
+          terminalUUID,
+          deviceId,
+          requestData: {
+            system: { set_relay_state: { state: 1 } },
+          },
+        },
+      }),
+    })
+  } catch (error) {
+    console.error('turnDeviceOn fetch error', error)
+  }
 }
 
 export async function turnDeviceOff(deviceId: string) {
@@ -111,27 +125,31 @@ export async function turnDeviceOff(deviceId: string) {
     console.error(`turnDeviceOff TPLINK device ${deviceId} not found`)
     return
   }
-  const { termid, token } = await connect()
-  if (!termid || !token) {
-    console.error('turnDeviceOff no tplink termid or token')
-    return
-  }
-  await fetch(device.appServerUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      method: 'passthrough',
-      params: {
-        appType: 'Kasa_Android',
-        token,
-        terminalUUID: termid,
-        deviceId,
-        requestData: {
-          system: { set_relay_state: { state: 0 } },
-        },
+  const { terminalUUID, token } = await connect()
+  // if (!termid || !token) {
+  //   console.error('turnDeviceOff no tplink termid or token')
+  //   return
+  // }
+  try {
+    await fetch(device.appServerUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    }),
-  })
+      body: JSON.stringify({
+        method: 'passthrough',
+        params: {
+          appType: 'Kasa_Android',
+          token,
+          terminalUUID,
+          deviceId,
+          requestData: {
+            system: { set_relay_state: { state: 0 } },
+          },
+        },
+      }),
+    })
+  } catch (error) {
+    console.error('turnDeviceOff fetch error', error)
+  }
 }
