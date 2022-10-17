@@ -59,66 +59,66 @@ app.post('/ifttt/v1/test/setup', (req: Request, res: Response) => {
 })
 
 // trigger: device turned on
-app.post(
-  '/ifttt/v1/triggers/device_turned_on',
-  (req: Request, res: Response) => {
-    if (VERBOSE) console.log('/ifttt/v1/triggers/device_turned_on')
-    if (!checkServiceKey(req, res)) return
+// app.post(
+//   '/ifttt/v1/triggers/device_turned_on',
+//   (req: Request, res: Response) => {
+//     if (VERBOSE) console.log('/ifttt/v1/triggers/device_turned_on')
+//     if (!checkServiceKey(req, res)) return
 
-    const data = []
-    let numOfItems = req.body.limit
+//     const data = []
+//     let numOfItems = req.body.limit
 
-    if (typeof numOfItems === 'undefined') {
-      // Setting the default if limit doesn't exist.
-      numOfItems = 3
-    }
+//     if (typeof numOfItems === 'undefined') {
+//       // Setting the default if limit doesn't exist.
+//       numOfItems = 3
+//     }
 
-    if (numOfItems >= 1) {
-      for (let i = 0; i < numOfItems; i += 1) {
-        data.push({
-          turned_on_at: new Date().toISOString(), // Must be a valid ISOString
-          meta: {
-            id: v4(),
-            timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
-          },
-        })
-      }
-    }
+//     if (numOfItems >= 1) {
+//       for (let i = 0; i < numOfItems; i += 1) {
+//         data.push({
+//           turned_on_at: new Date().toISOString(), // Must be a valid ISOString
+//           meta: {
+//             id: v4(),
+//             timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
+//           },
+//         })
+//       }
+//     }
 
-    res.status(200).send({ data: data })
-  }
-)
+//     res.status(200).send({ data: data })
+//   }
+// )
 
 // trigger: device turned off
-app.post(
-  '/ifttt/v1/triggers/device_turned_off',
-  (req: Request, res: Response) => {
-    if (VERBOSE) console.log('/ifttt/v1/triggers/device_turned_off')
-    if (!checkServiceKey(req, res)) return
+// app.post(
+//   '/ifttt/v1/triggers/device_turned_off',
+//   (req: Request, res: Response) => {
+//     if (VERBOSE) console.log('/ifttt/v1/triggers/device_turned_off')
+//     if (!checkServiceKey(req, res)) return
 
-    const data = []
-    let numOfItems = req.body.limit
+//     const data = []
+//     let numOfItems = req.body.limit
 
-    if (typeof numOfItems === 'undefined') {
-      // Setting the default if limit doesn't exist.
-      numOfItems = 3
-    }
+//     if (typeof numOfItems === 'undefined') {
+//       // Setting the default if limit doesn't exist.
+//       numOfItems = 3
+//     }
 
-    if (numOfItems >= 1) {
-      for (let i = 0; i < numOfItems; i += 1) {
-        data.push({
-          turned_off_at: new Date().toISOString(), // Must be a valid ISOString
-          meta: {
-            id: v4(),
-            timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
-          },
-        })
-      }
-    }
+//     if (numOfItems >= 1) {
+//       for (let i = 0; i < numOfItems; i += 1) {
+//         data.push({
+//           turned_off_at: new Date().toISOString(), // Must be a valid ISOString
+//           meta: {
+//             id: v4(),
+//             timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
+//           },
+//         })
+//       }
+//     }
 
-    res.status(200).send({ data: data })
-  }
-)
+//     res.status(200).send({ data: data })
+//   }
+// )
 
 // query: list all devices
 app.post(
