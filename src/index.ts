@@ -1,8 +1,8 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
 import morgan from 'morgan'
+import { v4 } from 'uuid'
 import { getDevices, turnDeviceOff, turnDeviceOn } from './tplink.js'
-import generateUniqueId from './util.js'
 
 // another way to introduce a delay
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
@@ -78,7 +78,7 @@ app.post(
         data.push({
           turned_on_at: new Date().toISOString(), // Must be a valid ISOString
           meta: {
-            id: generateUniqueId(),
+            id: v4(),
             timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
           },
         })
@@ -109,7 +109,7 @@ app.post(
         data.push({
           turned_off_at: new Date().toISOString(), // Must be a valid ISOString
           meta: {
-            id: generateUniqueId(),
+            id: v4(),
             timestamp: Math.floor(Date.now() / 1000), // This returns a unix timestamp in seconds.
           },
         })

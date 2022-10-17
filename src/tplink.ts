@@ -29,16 +29,15 @@ const connect = async () => {
   const json: any = await r.json()
   if (VERBOSE) console.log('connect json', json)
   const token = json.result.token
-  // if (!token) console.error('connect: no tplink connect token', json)
   return { terminalUUID, token }
 }
 
 export async function getDevices() {
   const { terminalUUID, token } = await connect()
-  // if (!terminalUUID || !token) {
-  //   console.error('getDevices no tplink terminalUUID or token')
-  //   return []
-  // }
+  if (!terminalUUID) {
+    console.error('getDevices no tplink terminalUUID')
+    return
+  }
 
   // get device list
   let r
@@ -86,10 +85,10 @@ export async function turnDeviceOn(deviceId: string) {
     return
   }
   const { terminalUUID, token } = await connect()
-  // if (!terminalUUID || !token) {
-  //   console.error('turnDeviceOn no tplink termid or token')
-  //   return
-  // }
+  if (!terminalUUID) {
+    console.error('turnDeviceOn no tplink terminalUUID')
+    return
+  }
   try {
     await fetch(device.appServerUrl, {
       method: 'POST',
@@ -126,10 +125,10 @@ export async function turnDeviceOff(deviceId: string) {
     return
   }
   const { terminalUUID, token } = await connect()
-  // if (!termid || !token) {
-  //   console.error('turnDeviceOff no tplink termid or token')
-  //   return
-  // }
+  if (!terminalUUID) {
+    console.error('turnDeviceOff no tplink terminalUUID')
+    return
+  }
   try {
     await fetch(device.appServerUrl, {
       method: 'POST',
