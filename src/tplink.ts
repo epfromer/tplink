@@ -2,7 +2,6 @@ import { v4 } from 'uuid'
 
 const url = 'https://wap.tplinkcloud.com'
 const VERBOSE = process.env.VERBOSE ? true : false
-console.log('VERBOSE', VERBOSE)
 
 const connect = async () => {
   const termid = v4()
@@ -51,7 +50,7 @@ export async function getDevices() {
     }),
   })
   const json: any = await r.json()
-  if (!json.result.deviceList || json.result.deviceList.length) {
+  if (!json.result.deviceList || !json.result.deviceList.length) {
     console.error('getDevices device list null or empty')
     return []
   }
