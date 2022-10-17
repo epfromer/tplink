@@ -10,6 +10,7 @@ export default function serviceKeyCheck(
   const key = req.get('IFTTT-Service-Key')
 
   if (key !== IFTTT_SERVICE_KEY) {
+    console.error('serviceKeyCheck fail', key, IFTTT_SERVICE_KEY)
     res.status(401).send()
   }
 

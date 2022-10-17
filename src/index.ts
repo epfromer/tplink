@@ -1,5 +1,6 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
+import morgan from 'morgan'
 import serviceKeyCheck from './middleware.js'
 import { getDevices, turnDeviceOff, turnDeviceOn } from './tplink.js'
 import generateUniqueId from './util.js'
@@ -13,6 +14,7 @@ const VERBOSE = process.env.VERBOSE ? true : false
 console.log('VERBOSE', VERBOSE)
 
 app.use(bodyParser.json())
+app.use(morgan('tiny'))
 
 // get status of service
 app.get('/', (req: Request, res: Response) => {
