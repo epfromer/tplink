@@ -56,6 +56,7 @@ export async function getDevices() {
     return []
   }
   const json: any = await r.json()
+  console.log(json)
   if (!json.result.deviceList || !json.result.deviceList.length) {
     console.error('getDevices device list null or empty', json)
     return []
