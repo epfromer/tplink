@@ -1,7 +1,8 @@
 import { v4 } from 'uuid'
 
 const url = 'https://wap.tplinkcloud.com'
-const VERBOSE = process.env.VERBOSE
+const VERBOSE = process.env.VERBOSE ? true : false
+console.log('VERBOSE', VERBOSE)
 
 const connect = async () => {
   const termid = v4()

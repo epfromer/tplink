@@ -9,12 +9,13 @@ import generateUniqueId from './util.js'
 
 const app = express()
 const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY
-const VERBOSE = process.env.VERBOSE
+const VERBOSE = process.env.VERBOSE ? true : false
+console.log('VERBOSE', VERBOSE)
 
 app.use(bodyParser.json())
 
 // get status of service
-app.get('/', function (req, res) {
+app.get('/', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ status')
   res.send('tplink-ifttt-shim: Service shim for linking tp-link to IFTTT')
 })
