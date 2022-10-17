@@ -208,5 +208,5 @@ app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
 
 const port = process.env.PORT || 3000
 app.listen(port, () =>
-  console.log(`tplink-ifttt-shim running on PORT: ${port}`)
+  console.log(`klonzo-ifttt-tplink running on PORT: ${port}`)
 )
