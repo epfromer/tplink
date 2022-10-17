@@ -1,7 +1,6 @@
 import bodyParser from 'body-parser'
 import express, { Request, Response } from 'express'
 import morgan from 'morgan'
-import serviceKeyCheck from './middleware.js'
 import { getDevices, turnDeviceOff, turnDeviceOn } from './tplink.js'
 import generateUniqueId from './util.js'
 
@@ -9,53 +8,62 @@ import generateUniqueId from './util.js'
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
 
 const app = express()
-const IFTTT_SERVICE_KEY = process.env.IFTTT_SERVICE_KEY
 const VERBOSE = process.env.VERBOSE ? true : false
 console.log('VERBOSE', VERBOSE)
 
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
 
+const checkServiceKey = (req: Request, res: Response) => {
+  if (req.get('IFTTT-Service-Key') !== process.env.IFTTT_SERVICE_KEY) {
+    console.error(
+      'serviceKeyCheck fail',
+      req.get('IFTTT-Service-Key'),
+      process.env.IFTTT_SERVICE_KEY
+    )
+    res
+      .status(401)
+      .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
+    return false
+  }
+  return true
+}
+
 // get status of service
 app.get('/', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ status')
   res.send('tplink-ifttt-shim: Service shim for linking tp-link to IFTTT')
 })
-app.get('/ifttt/v1/status', serviceKeyCheck, (req: Request, res: Response) => {
+app.get('/ifttt/v1/status', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ifttt/v1/status')
+  if (!checkServiceKey(req, res)) return
+
   res.status(200).send()
 })
 
 // setup tests (required by IFTTT)
-app.post(
-  '/ifttt/v1/test/setup',
-  serviceKeyCheck,
-  (req: Request, res: Response) => {
-    if (VERBOSE) console.log('/ifttt/v1/test/setup')
-    res.status(200).send({
-      data: {
-        samples: {
-          actions: {
-            turn_device_on: { device_name: 'test device', duration: 5 },
-            turn_device_off: { device_name: 'test device' },
-          },
+app.post('/ifttt/v1/test/setup', (req: Request, res: Response) => {
+  if (VERBOSE) console.log('/ifttt/v1/test/setup')
+  if (!checkServiceKey(req, res)) return
+
+  res.status(200).send({
+    data: {
+      samples: {
+        actions: {
+          turn_device_on: { device_name: 'test device', duration: 5 },
+          turn_device_off: { device_name: 'test device' },
         },
       },
-    })
-  }
-)
+    },
+  })
+})
 
 // trigger: device turned on
 app.post(
   '/ifttt/v1/triggers/device_turned_on',
   (req: Request, res: Response) => {
     if (VERBOSE) console.log('/ifttt/v1/triggers/device_turned_on')
-    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-      res
-        .status(401)
-        .send({ errors: [{ message: 'Channel/Service key is not correct' }] })
-      return
-    }
+    if (!checkServiceKey(req, res)) return
 
     const data = []
     let numOfItems = req.body.limit
@@ -86,17 +94,7 @@ app.post(
   '/ifttt/v1/triggers/device_turned_off',
   (req: Request, res: Response) => {
     if (VERBOSE) console.log('/ifttt/v1/triggers/device_turned_off')
-    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-      res.status(401).send({
-        errors: [
-          {
-            message:
-              '/ifttt/v1/triggers/device_turned_off Channel/Service key is not correct',
-          },
-        ],
-      })
-      return
-    }
+    if (!checkServiceKey(req, res)) return
 
     const data = []
     let numOfItems = req.body.limit
@@ -127,18 +125,7 @@ app.post(
   '/ifttt/v1/queries/list_all_devices',
   async (req: Request, res: Response) => {
     if (VERBOSE) console.log('/ifttt/v1/queries/list_all_devices')
-    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-      console.error(req.get('IFTTT-Service-Key'), ' not valid')
-      res.status(401).send({
-        errors: [
-          {
-            message:
-              '/ifttt/v1/queries/list_all_devices Channel/Service key is not correct',
-          },
-        ],
-      })
-      return
-    }
+    if (!checkServiceKey(req, res)) return
 
     const devices = await getDevices()
     let data = devices.map((dev: any) => ({
@@ -164,17 +151,7 @@ app.post(
     if (VERBOSE) {
       console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options')
     }
-    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-      res.status(401).send({
-        errors: [
-          {
-            message:
-              '/ifttt/v1/actions/turn_device_on/fields/device_name/options Channel/Service key is not correct',
-          },
-        ],
-      })
-      return
-    }
+    if (!checkServiceKey(req, res)) return
 
     const devices = await getDevices()
     if (!devices.length) {
@@ -201,17 +178,7 @@ app.post(
 // action: turn device on
 app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ifttt/v1/actions/turn_device_on')
-  if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-    res.status(401).send({
-      errors: [
-        {
-          message:
-            '/ifttt/v1/actions/turn_device_on Channel/Service key is not correct',
-        },
-      ],
-    })
-    return
-  }
+  if (!checkServiceKey(req, res)) return
 
   // console.log(req.body)
   if (!req.body.actionFields || !req.body.actionFields.device_name) {
@@ -254,17 +221,7 @@ app.post(
         '/ifttt/v1/actions/turn_device_off/fields/device_name/options'
       )
     }
-    if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-      res.status(401).send({
-        errors: [
-          {
-            message:
-              '/ifttt/v1/actions/turn_device_off/fields/device_name/options Channel/Service key is not correct',
-          },
-        ],
-      })
-      return
-    }
+    if (!checkServiceKey(req, res)) return
 
     const devices = await getDevices()
     if (!devices.length) {
@@ -291,17 +248,7 @@ app.post(
 // action: turn device off
 app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ifttt/v1/actions/turn_device_off')
-  if (req.get('IFTTT-Service-Key') !== IFTTT_SERVICE_KEY) {
-    res.status(401).send({
-      errors: [
-        {
-          message:
-            '/ifttt/v1/actions/turn_device_off Channel/Service key is not correct',
-        },
-      ],
-    })
-    return
-  }
+  if (!checkServiceKey(req, res)) return
 
   // if (VERBOSE) console.log(req.body)
   if (!req.body.actionFields || !req.body.actionFields.device_name) {
