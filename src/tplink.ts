@@ -28,7 +28,8 @@ const connect = async () => {
   }
   const json: any = await r.json()
   if (VERBOSE) console.log('connect json', json)
-  const token = json.result.token
+  const token =
+    json && json.result && json.result.token ? json.result.token : ''
   return { terminalUUID, token }
 }
 
