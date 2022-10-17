@@ -56,12 +56,11 @@ export async function getDevices() {
     return []
   }
   const json: any = await r.json()
-  console.log(json)
+  if (VERBOSE) console.log('getDevices', json)
   if (!json.result.deviceList || !json.result.deviceList.length) {
     console.error('getDevices device list null or empty', json)
     return []
   }
-  // if (VERBOSE) console.log('getDevices', json.result.deviceList)
   return json.result.deviceList
 }
 
