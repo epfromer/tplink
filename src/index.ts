@@ -1,7 +1,10 @@
 import bodyParser from 'body-parser'
+import * as dotenv from 'dotenv'
 import express, { Request, Response } from 'express'
 import morgan from 'morgan'
 import { getDevices, turnDeviceOff, turnDeviceOn } from './tplink.js'
+
+dotenv.config()
 
 // another way to introduce a delay
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
