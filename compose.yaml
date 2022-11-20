@@ -1,5 +1,5 @@
 services:
-  poll-yolink:
+  ifttt-tplink:
     build: .
     ports:
       - "80:80"
