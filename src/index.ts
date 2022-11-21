@@ -10,7 +10,7 @@ dotenv.config()
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
 
 const app = express()
-const VERBOSE = process.env.VERBOSE ? true : false
+const VERBOSE = process.env.VERBOSE === '1'
 console.log('VERBOSE', VERBOSE)
 
 app.use(bodyParser.json())
