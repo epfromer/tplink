@@ -23,14 +23,14 @@ const connect = async () => {
       }),
     })
   } catch (error) {
-    console.log('connect fetch error', error)
+    console.error('connect fetch error', error)
     return { terminalUUID: null, token: null }
   }
   const json: any = await r.json()
   if (VERBOSE) console.log('connect json', json)
 
   if (json && json.error_code && json.msg) {
-    console.log('connect error', json.error_code, json.msg)
+    console.error('connect error', json.error_code, json.msg)
     return { terminalUUID: null, token: null }
   }
 
@@ -82,7 +82,7 @@ export async function getDevices() {
 
 export async function turnDeviceOn(deviceId: string) {
   const devices = await getDevices()
-  if (!devices.length) {
+  if (!devices || !devices.length) {
     console.error('getDevices no TPLINK devices found')
     return
   }
@@ -122,7 +122,7 @@ export async function turnDeviceOn(deviceId: string) {
 
 export async function turnDeviceOff(deviceId: string) {
   const devices = await getDevices()
-  if (!devices.length) {
+  if (!devices || !devices.length) {
     console.error('turnDeviceOff no TPLINK devices found')
     return
   }
