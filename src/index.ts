@@ -34,7 +34,7 @@ const checkServiceKey = (req: Request, res: Response) => {
 // get status of service
 app.get('/', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ status')
-  res.send('tplink-ifttt-shim: Service shim for linking tp-link to IFTTT')
+  res.send('tplink: Service shim for linking tp-link to IFTTT')
 })
 app.get('/ifttt/v1/status', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ifttt/v1/status')

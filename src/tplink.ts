@@ -28,6 +28,12 @@ const connect = async () => {
   }
   const json: any = await r.json()
   if (VERBOSE) console.log('connect json', json)
+
+  if (json && json.error_code && json.msg) {
+    console.error('connect error', json.error_code, json.msg)
+    return { terminalUUID: null, token: null }
+  }
+
   const token =
     json && json.result && json.result.token ? json.result.token : ''
   return { terminalUUID, token }
