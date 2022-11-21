@@ -43,8 +43,10 @@ const connect = async () => {
 
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
-    console.log('getDevices - returning cached list')
-    if (VERBOSE) console.log('getDevices - returning cached list')
+    console.log('getDevices returning cached list', cachedDeviceList)
+    if (VERBOSE) {
+      console.log('getDevices returning cached list', cachedDeviceList)
+    }
     return cachedDeviceList
   }
 
@@ -85,6 +87,7 @@ export async function getDevices() {
     console.error('getDevices device list null or empty', json)
     return []
   }
+  console.log('getDevices caching list', json.result.deviceList)
   cachedDeviceList = json.result.deviceList
   return json.result.deviceList
 }
