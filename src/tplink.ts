@@ -1,7 +1,7 @@
 import { v4 } from 'uuid'
 
 const url = 'https://wap.tplinkcloud.com'
-const VERBOSE = process.env.VERBOSE ? true : false
+const VERBOSE = process.env.VERBOSE === '1'
 
 const connect = async () => {
   const terminalUUID = v4()
