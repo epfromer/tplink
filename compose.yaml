@@ -1,5 +1,5 @@
 services:
-  ifttt-tplink:
+  tplink:
     build: .
     ports:
       - "80:80"
