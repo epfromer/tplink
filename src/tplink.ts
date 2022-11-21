@@ -3,6 +3,8 @@ import { v4 } from 'uuid'
 const url = 'https://wap.tplinkcloud.com'
 const VERBOSE = process.env.VERBOSE === '1'
 
+let cachedDeviceList: Array<any> = []
+
 const connect = async () => {
   const terminalUUID = v4()
   let r
@@ -40,6 +42,12 @@ const connect = async () => {
 }
 
 export async function getDevices() {
+  if (cachedDeviceList.length > 0) {
+    console.log('getDevices - returning cached list')
+    if (VERBOSE) console.log('getDevices - returning cached list')
+    return cachedDeviceList
+  }
+
   const { terminalUUID, token } = await connect()
   if (!terminalUUID) {
     console.error('getDevices no tplink terminalUUID')
@@ -77,6 +85,7 @@ export async function getDevices() {
     console.error('getDevices device list null or empty', json)
     return []
   }
+  cachedDeviceList = json.result.deviceList
   return json.result.deviceList
 }
 
