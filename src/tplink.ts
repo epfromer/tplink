@@ -107,7 +107,6 @@ export async function turnDeviceOn(deviceId: string) {
     console.error('turnDeviceOn no tplink terminalUUID')
     return
   }
-  if (VERBOSE) console.log('turnDeviceOn', deviceId)
   console.log('turnDeviceOn', deviceId)
   try {
     await fetch(device.appServerUrl, {
@@ -149,7 +148,6 @@ export async function turnDeviceOff(deviceId: string) {
     console.error('turnDeviceOff no tplink terminalUUID')
     return
   }
-  if (VERBOSE) console.log('turnDeviceOff', deviceId)
   console.log('turnDeviceOff', deviceId)
   try {
     await fetch(device.appServerUrl, {
