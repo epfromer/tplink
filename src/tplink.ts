@@ -2,6 +2,8 @@ import { v4 } from 'uuid'
 
 const url = 'https://wap.tplinkcloud.com'
 
+let cachedDeviceList: Array<any> = []
+
 const connect = async () => {
   const terminalUUID = v4()
   let r
@@ -39,6 +41,13 @@ const connect = async () => {
 }
 
 export async function getDevices() {
+  if (cachedDeviceList.length > 0) {
+    if (VERBOSE) {
+      console.log('getDevices returning cached list', cachedDeviceList)
+    }
+    return cachedDeviceList
+  }
+
   const { terminalUUID, token } = await connect()
   if (!terminalUUID) {
     console.error('getDevices no tplink terminalUUID')
@@ -76,6 +85,8 @@ export async function getDevices() {
     console.error('getDevices device list null or empty', json)
     return []
   }
+  if (VERBOSE) console.log('getDevices caching list', json.result.deviceList)
+  cachedDeviceList = json.result.deviceList
   return json.result.deviceList
 }
 
@@ -87,7 +98,7 @@ export async function turnDeviceOn(deviceId: string) {
   }
   const device = devices.find((dev: any) => dev.deviceId === deviceId)
   if (!device) {
-    console.error(`turnDeviceOff TPLINK device ${deviceId} not found`)
+    console.error(`turnDeviceOn TPLINK device ${deviceId} not found`)
     return
   }
   const { terminalUUID, token } = await connect()
@@ -95,6 +106,7 @@ export async function turnDeviceOn(deviceId: string) {
     console.error('turnDeviceOn no tplink terminalUUID')
     return
   }
+  console.log('turnDeviceOn', deviceId)
   try {
     await fetch(device.appServerUrl, {
       method: 'POST',
@@ -135,6 +147,7 @@ export async function turnDeviceOff(deviceId: string) {
     console.error('turnDeviceOff no tplink terminalUUID')
     return
   }
+  console.log('turnDeviceOff', deviceId)
   try {
     await fetch(device.appServerUrl, {
       method: 'POST',
