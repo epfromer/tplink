@@ -1,6 +1,10 @@
+import * as dotenv from 'dotenv'
 import { v4 } from 'uuid'
 
+dotenv.config()
+
 const url = 'https://wap.tplinkcloud.com'
+const VERBOSE = process.env.VERBOSE === '1'
 
 let cachedDeviceList: Array<any> = []
 
@@ -28,7 +32,7 @@ const connect = async () => {
     return { terminalUUID: null, token: null }
   }
   const json: any = await r.json()
-  if (process.env.VERBOSE) console.log('connect json', json)
+  if (VERBOSE) console.log('connect json', json)
 
   if (json && json.error_code && json.msg) {
     console.error('connect error', json.error_code, json.msg)
@@ -42,7 +46,7 @@ const connect = async () => {
 
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
-    if (process.env.VERBOSE) {
+    if (VERBOSE) {
       console.log('getDevices returning cached list', cachedDeviceList)
     }
     return cachedDeviceList
@@ -76,7 +80,7 @@ export async function getDevices() {
     return []
   }
   const json: any = await r.json()
-  if (process.env.VERBOSE) console.log('getDevices', json)
+  if (VERBOSE) console.log('getDevices', json)
   if (
     !json.result ||
     !json.result.deviceList ||
@@ -85,7 +89,7 @@ export async function getDevices() {
     console.error('getDevices device list null or empty', json)
     return []
   }
-  if (process.env.VERBOSE) {
+  if (VERBOSE) {
     console.log('getDevices caching list', json.result.deviceList)
   }
   cachedDeviceList = json.result.deviceList
