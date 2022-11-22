@@ -1,7 +1,6 @@
 import { v4 } from 'uuid'
 
 const url = 'https://wap.tplinkcloud.com'
-const VERBOSE = process.env.VERBOSE === '1'
 
 const connect = async () => {
   const terminalUUID = v4()
@@ -27,7 +26,7 @@ const connect = async () => {
     return { terminalUUID: null, token: null }
   }
   const json: any = await r.json()
-  if (VERBOSE) console.log('connect json', json)
+  if (process.env.VERBOSE) console.log('connect json', json)
 
   if (json && json.error_code && json.msg) {
     console.error('connect error', json.error_code, json.msg)
@@ -68,7 +67,7 @@ export async function getDevices() {
     return []
   }
   const json: any = await r.json()
-  if (VERBOSE) console.log('getDevices', json)
+  if (process.env.VERBOSE) console.log('getDevices', json)
   if (
     !json.result ||
     !json.result.deviceList ||

@@ -10,8 +10,7 @@ dotenv.config()
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
 
 const app = express()
-const VERBOSE = process.env.VERBOSE === '1'
-console.log('VERBOSE', VERBOSE)
+console.log('VERBOSE', process.env.VERBOSE)
 
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
@@ -33,11 +32,11 @@ const checkServiceKey = (req: Request, res: Response) => {
 
 // get status of service
 app.get('/', (req: Request, res: Response) => {
-  if (VERBOSE) console.log('/ status')
+  if (process.env.VERBOSE) console.log('/ status')
   res.send('tplink: Service shim for linking tp-link to IFTTT')
 })
 app.get('/ifttt/v1/status', (req: Request, res: Response) => {
-  if (VERBOSE) console.log('/ifttt/v1/status')
+  if (process.env.VERBOSE) console.log('/ifttt/v1/status')
   if (!checkServiceKey(req, res)) return
 
   res.status(200).send()
@@ -45,7 +44,7 @@ app.get('/ifttt/v1/status', (req: Request, res: Response) => {
 
 // setup tests (required by IFTTT)
 app.post('/ifttt/v1/test/setup', (req: Request, res: Response) => {
-  if (VERBOSE) console.log('/ifttt/v1/test/setup')
+  if (process.env.VERBOSE) console.log('/ifttt/v1/test/setup')
   if (!checkServiceKey(req, res)) return
 
   res.status(200).send({
@@ -64,7 +63,7 @@ app.post('/ifttt/v1/test/setup', (req: Request, res: Response) => {
 app.post(
   '/ifttt/v1/queries/list_all_devices',
   async (req: Request, res: Response) => {
-    if (VERBOSE) console.log('/ifttt/v1/queries/list_all_devices')
+    if (process.env.VERBOSE) console.log('/ifttt/v1/queries/list_all_devices')
     if (!checkServiceKey(req, res)) return
 
     const devices = await getDevices()
@@ -88,7 +87,7 @@ app.post(
 app.post(
   '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
   async (req: Request, res: Response) => {
-    if (VERBOSE) {
+    if (process.env.VERBOSE) {
       console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options')
     }
     if (!checkServiceKey(req, res)) return
@@ -117,7 +116,7 @@ app.post(
 
 // action: turn device on
 app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
-  if (VERBOSE) console.log('/ifttt/v1/actions/turn_device_on')
+  if (process.env.VERBOSE) console.log('/ifttt/v1/actions/turn_device_on')
   if (!checkServiceKey(req, res)) return
 
   // console.log(req.body)
@@ -140,11 +139,11 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
 
   // check that duration is < 24 hours
   if (duration > 0 && duration < 60 * 60 * 24) {
-    if (VERBOSE) {
+    if (process.env.VERBOSE) {
       console.log(`turning device ${deviceId} on for ${duration} seconds`)
     }
     setTimeout(() => {
-      if (VERBOSE) console.log(`turning device ${deviceId} off`)
+      if (process.env.VERBOSE) console.log(`turning device ${deviceId} off`)
       turnDeviceOff(deviceId)
     }, duration * 1000)
   }
@@ -156,7 +155,7 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
 app.post(
   '/ifttt/v1/actions/turn_device_off/fields/device_name/options',
   async (req: Request, res: Response) => {
-    if (VERBOSE) {
+    if (process.env.VERBOSE) {
       console.log(
         '/ifttt/v1/actions/turn_device_off/fields/device_name/options'
       )
@@ -187,7 +186,7 @@ app.post(
 
 // action: turn device off
 app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
-  if (VERBOSE) console.log('/ifttt/v1/actions/turn_device_off')
+  if (process.env.VERBOSE) console.log('/ifttt/v1/actions/turn_device_off')
   if (!checkServiceKey(req, res)) return
 
   // if (VERBOSE) console.log(req.body)
