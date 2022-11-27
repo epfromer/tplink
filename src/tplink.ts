@@ -5,7 +5,6 @@ dotenv.config()
 
 const url = 'https://wap.tplinkcloud.com'
 const VERBOSE = process.env.VERBOSE === '1'
-console.log('yo')
 
 let cachedDeviceList: Array<any> = []
 
