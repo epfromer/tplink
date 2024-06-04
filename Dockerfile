@@ -8,7 +8,6 @@ WORKDIR /usr/src/app
 COPY package.json yarn.lock ./
 RUN yarn
 COPY . ./
-ENV NODE_OPTIONS=--openssl-legacy-provider
 RUN yarn build
 
 CMD ["node", "build/index.js"]

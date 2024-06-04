@@ -8,13 +8,15 @@
   "main": "index.js",
   "scripts": {
     "yarn": "yarn",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider yarn install && tsc --build --verbose",
-    "start": "NODE_OPTIONS=--openssl-legacy-provider node build/index.js",
-    "up": "NODE_OPTIONS=--openssl-legacy-provider docker compose up --build",
+    "build": "yarn install && tsc --build --verbose",
+    "start": "node build/index.js",
+    "up": "docker compose up --build",
     "down": "docker compose down",
     "show env": "docker compose run web env"
   },
   "dependencies": {
+    "axios": "^1.7.2",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",

@@ -1,3 +1,4 @@
+import axios from 'axios'
 import * as dotenv from 'dotenv'
 import { v4 } from 'uuid'
 
@@ -28,19 +29,47 @@ const connect = async () => {
       }),
     })
   } catch (error) {
-    console.error('connect fetch error', error)
+    console.error('error: connect fetch error', error)
     return { terminalUUID: null, token: null }
   }
   const json: any = await r.json()
   if (VERBOSE) console.log('connect json', json)
 
   if (json && json.error_code && json.msg) {
-    console.error('connect error', json.error_code, json.msg)
+    console.error('error: connect error', json.error_code, json.msg)
     return { terminalUUID: null, token: null }
   }
 
   const token =
     json && json.result && json.result.token ? json.result.token : ''
+  return { terminalUUID, token }
+}
+
+const connectAxios = async () => {
+  const terminalUUID = v4()
+  let token = null
+
+  await axios.post(url, {
+    body: JSON.stringify({
+      method: 'login',
+      params: {
+        appType: 'Kasa_Android',
+        cloudUserName: process.env.TPLINK_USER,
+        cloudPassword: process.env.TPLINK_PWD,
+        terminalUUID,
+      },
+    }),
+  })
+    .then(function (response) {
+      console.log("success response = ", response);
+      // token =
+      //   response && response.result && response.result.token ? response.result.token : ''
+    })
+    .catch(function (error) {
+      console.log("error", error);
+    });
+
+  console.log("terminalUUID, token", terminalUUID, token)
   return { terminalUUID, token }
 }
 
@@ -52,9 +81,10 @@ export async function getDevices() {
     return cachedDeviceList
   }
 
-  const { terminalUUID, token } = await connect()
+  const { terminalUUID, token } = await connectAxios()
+  // const { terminalUUID, token } = await connect()
   if (!terminalUUID) {
-    console.error('getDevices no tplink terminalUUID')
+    console.error('error: getDevices no tplink terminalUUID')
     return
   }
 
@@ -76,7 +106,7 @@ export async function getDevices() {
       }),
     })
   } catch (error) {
-    console.error('getDevices fetch error', error)
+    console.error('error: getDevices fetch error', error)
     return []
   }
   const json: any = await r.json()
@@ -86,7 +116,7 @@ export async function getDevices() {
     !json.result.deviceList ||
     !json.result.deviceList.length
   ) {
-    console.error('getDevices device list null or empty', json)
+    console.error('error: getDevices device list null or empty', json)
     return []
   }
   if (VERBOSE) {
@@ -99,17 +129,17 @@ export async function getDevices() {
 export async function turnDeviceOn(deviceId: string) {
   const devices = await getDevices()
   if (!devices || !devices.length) {
-    console.error('getDevices no TPLINK devices found')
+    console.error('error: getDevices no TPLINK devices found')
     return
   }
   const device = devices.find((dev: any) => dev.deviceId === deviceId)
   if (!device) {
-    console.error(`turnDeviceOn TPLINK device ${deviceId} not found`)
+    console.error(`error: turnDeviceOn TPLINK device ${deviceId} not found`)
     return
   }
   const { terminalUUID, token } = await connect()
   if (!terminalUUID) {
-    console.error('turnDeviceOn no tplink terminalUUID')
+    console.error('error: turnDeviceOn no tplink terminalUUID')
     return
   }
   console.log('turnDeviceOn', deviceId)
@@ -133,24 +163,24 @@ export async function turnDeviceOn(deviceId: string) {
       }),
     })
   } catch (error) {
-    console.error('turnDeviceOn fetch error', error)
+    console.error('error: turnDeviceOn fetch error', error)
   }
 }
 
 export async function turnDeviceOff(deviceId: string) {
   const devices = await getDevices()
   if (!devices || !devices.length) {
-    console.error('turnDeviceOff no TPLINK devices found')
+    console.error('error: turnDeviceOff no TPLINK devices found')
     return
   }
   const device = devices.find((dev: any) => dev.deviceId === deviceId)
   if (!device) {
-    console.error(`turnDeviceOff TPLINK device ${deviceId} not found`)
+    console.error(`error: turnDeviceOff TPLINK device ${deviceId} not found`)
     return
   }
   const { terminalUUID, token } = await connect()
   if (!terminalUUID) {
-    console.error('turnDeviceOff no tplink terminalUUID')
+    console.error('error: turnDeviceOff no tplink terminalUUID')
     return
   }
   console.log('turnDeviceOff', deviceId)
@@ -174,6 +204,6 @@ export async function turnDeviceOff(deviceId: string) {
       }),
     })
   } catch (error) {
-    console.error('turnDeviceOff fetch error', error)
+    console.error('error: turnDeviceOff fetch error', error)
   }
 }
