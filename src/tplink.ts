@@ -1,5 +1,6 @@
-import axios from 'axios'
+// import axios from 'axios'
 import * as dotenv from 'dotenv'
+import { Agent } from 'undici'
 import { v4 } from 'uuid'
 
 dotenv.config()
@@ -27,13 +28,21 @@ const connect = async () => {
           terminalUUID,
         },
       }),
+      // @ts-ignore
+      dispatcher: new Agent({
+        connect: {
+          rejectUnauthorized: false,
+          // @ts-ignore
+          secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT
+        }
+      })
     })
   } catch (error) {
     console.error('error: connect fetch error', error)
     return { terminalUUID: null, token: null }
   }
   const json: any = await r.json()
-  if (VERBOSE) console.log('connect json', json)
+  if (VERBOSE) console.log('success! connect json', json)
 
   if (json && json.error_code && json.msg) {
     console.error('error: connect error', json.error_code, json.msg)
@@ -45,33 +54,33 @@ const connect = async () => {
   return { terminalUUID, token }
 }
 
-const connectAxios = async () => {
-  const terminalUUID = v4()
-  let token = null
+// const connectAxios = async () => {
+//   const terminalUUID = v4()
+//   let token = null
 
-  await axios.post(url, {
-    body: JSON.stringify({
-      method: 'login',
-      params: {
-        appType: 'Kasa_Android',
-        cloudUserName: process.env.TPLINK_USER,
-        cloudPassword: process.env.TPLINK_PWD,
-        terminalUUID,
-      },
-    }),
-  })
-    .then(function (response) {
-      console.log("success response = ", response);
-      // token =
-      //   response && response.result && response.result.token ? response.result.token : ''
-    })
-    .catch(function (error) {
-      console.log("error", error);
-    });
+//   await axios.post(url, {
+//     body: JSON.stringify({
+//       method: 'login',
+//       params: {
+//         appType: 'Kasa_Android',
+//         cloudUserName: process.env.TPLINK_USER,
+//         cloudPassword: process.env.TPLINK_PWD,
+//         terminalUUID,
+//       },
+//     }),
+//   })
+//     .then(function (response) {
+//       console.log("success response = ", response);
+//       // token =
+//       //   response && response.result && response.result.token ? response.result.token : ''
+//     })
+//     .catch(function (error) {
+//       console.log("error", error);
+//     });
 
-  console.log("terminalUUID, token", terminalUUID, token)
-  return { terminalUUID, token }
-}
+//   console.log("terminalUUID, token", terminalUUID, token)
+//   return { terminalUUID, token }
+// }
 
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
@@ -81,8 +90,8 @@ export async function getDevices() {
     return cachedDeviceList
   }
 
-  const { terminalUUID, token } = await connectAxios()
-  // const { terminalUUID, token } = await connect()
+  // const { terminalUUID, token } = await connectAxios()
+  const { terminalUUID, token } = await connect()
   if (!terminalUUID) {
     console.error('error: getDevices no tplink terminalUUID')
     return
