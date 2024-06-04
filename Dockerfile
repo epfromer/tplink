@@ -4,6 +4,8 @@ FROM node:18
 # Create app directory
 WORKDIR /usr/src/app
 
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # Install app dependencies
 COPY package.json yarn.lock ./
 RUN yarn

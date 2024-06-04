@@ -8,8 +8,8 @@
   "main": "index.js",
   "scripts": {
     "yarn": "yarn",
-    "build": "NODE_OPTIONS='--openssl-legacy-provider' yarn install && tsc --build --verbose",
-    "start": "NODE_OPTIONS='--openssl-legacy-provider' node build/index.js",
+    "build": "yarn install && tsc --build --verbose",
+    "start": "node build/index.js",
     "up": "docker compose up --build",
     "down": "docker compose down",
     "show env": "docker compose run web env"
