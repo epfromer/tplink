@@ -10,7 +10,7 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 COPY package.json yarn.lock ./
 RUN yarn
 COPY . ./
-RUN yarn build
+RUN yarn build REMOVEME
 
 CMD ["node", "build/index.js"]
 
