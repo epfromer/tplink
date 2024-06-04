@@ -1,5 +1,6 @@
 // import axios from 'axios'
 import * as dotenv from 'dotenv'
+import crypto from "node:crypto"
 import { Agent } from 'undici'
 import { v4 } from 'uuid'
 
@@ -32,7 +33,6 @@ const connect = async () => {
       dispatcher: new Agent({
         connect: {
           rejectUnauthorized: false,
-          // @ts-ignore
           secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT
         }
       })
