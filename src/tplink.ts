@@ -26,48 +26,48 @@ const allowLegacyRenegotiationforNodeJsOptions = {
   }),
 };
 
-// const connect = async () => {
-//   const terminalUUID = v4()
-//   let r
-//   try {
-//     r = await fetch(url, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         method: 'login',
-//         params: {
-//           appType: 'Kasa_Android',
-//           cloudUserName: process.env.TPLINK_USER,
-//           cloudPassword: process.env.TPLINK_PWD,
-//           terminalUUID,
-//         },
-//       }),
-//       // @ts-ignore
-//       dispatcher: new Agent({
-//         connect: {
-//           rejectUnauthorized: false,
-//           secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT
-//         }
-//       })
-//     })
-//   } catch (error) {
-//     console.error('error: connect fetch error', error)
-//     return { terminalUUID: null, token: null }
-//   }
-//   const json: any = await r.json()
-//   if (VERBOSE) console.log('success! connect json', json)
+const connect = async () => {
+  const terminalUUID = v4()
+  let r
+  try {
+    r = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        method: 'login',
+        params: {
+          appType: 'Kasa_Android',
+          cloudUserName: process.env.TPLINK_USER,
+          cloudPassword: process.env.TPLINK_PWD,
+          terminalUUID,
+        },
+      }),
+      // @ts-ignore
+      dispatcher: new Agent({
+        connect: {
+          rejectUnauthorized: false,
+          secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT
+        }
+      })
+    })
+  } catch (error) {
+    console.error('error: connect fetch error', error)
+    return { terminalUUID: null, token: null }
+  }
+  const json: any = await r.json()
+  if (VERBOSE) console.log('success! connect json', json)
 
-//   if (json && json.error_code && json.msg) {
-//     console.error('error: connect error', json.error_code, json.msg)
-//     return { terminalUUID: null, token: null }
-//   }
+  if (json && json.error_code && json.msg) {
+    console.error('error: connect error', json.error_code, json.msg)
+    return { terminalUUID: null, token: null }
+  }
 
-//   const token =
-//     json && json.result && json.result.token ? json.result.token : ''
-//   return { terminalUUID, token }
-// }
+  const token =
+    json && json.result && json.result.token ? json.result.token : ''
+  return { terminalUUID, token }
+}
 
 const connectAxios = async () => {
   const terminalUUID = v4()
