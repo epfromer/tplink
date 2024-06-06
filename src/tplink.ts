@@ -7,100 +7,95 @@ import axios from 'axios';
 
 dotenv.config()
 
-const url = 'https://wap.tplinkcloud.com'
 const VERBOSE = process.env.VERBOSE === '1'
+
+const cloudUrl = 'https://wap.tplinkcloud.com'
+const loginRequest = {
+  method: 'login',
+  params: {
+    appType: 'Tapo_Android',
+    cloudUserName: process.env.REACT_APP_TPLINK_USER,
+    cloudPassword: process.env.REACT_APP_TPLINK_PWD,
+    terminalUUID: v4(),
+  },
+}
 
 let cachedDeviceList: Array<any> = []
 
-/**
- * Handle this problem with Node 18
- * write EPROTO B8150000:error:0A000152:SSL routines:final_renegotiate:unsafe legacy renegotiation disabled
- * see https://stackoverflow.com/questions/74324019/allow-legacy-renegotiation-for-nodejs/74600467#74600467
- **/
-const allowLegacyRenegotiationforNodeJsOptions = {
-  httpsAgent: new https.Agent({
-    // for self signed you could also add
-    // rejectUnauthorized: false,
-    // allow legacy server
-    secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-  }),
-};
-
-const connect = async () => {
-  const terminalUUID = v4()
-  let r
-  try {
-    r = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        method: 'login',
-        params: {
-          appType: 'Kasa_Android',
-          cloudUserName: process.env.TPLINK_USER,
-          cloudPassword: process.env.TPLINK_PWD,
-          terminalUUID,
-        },
-      }),
-      // @ts-ignore
-      dispatcher: new Agent({
-        connect: {
-          rejectUnauthorized: false,
-          secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT
-        }
-      })
-    })
-  } catch (error) {
-    console.error('error: connect fetch error', error)
-    return { terminalUUID: null, token: null }
+const checkError = (responseData: any) => {
+  const errorCode = responseData['error_code']
+  if (errorCode) {
+    switch (errorCode) {
+      case 0:
+        return
+      case -1005:
+        throw new Error('AES Decode Fail')
+      case -1006:
+        throw new Error('Request length error')
+      case -1008:
+        throw new Error('Invalid request params')
+      case -1301:
+        throw new Error('Rate limit exceeded')
+      case -1101:
+        throw new Error('Session params error')
+      case -1010:
+        throw new Error('Invalid public key length')
+      case -1012:
+        throw new Error('Invalid terminal UUID')
+      case -1501:
+        throw new Error('Invalid credentials')
+      case -1002:
+        throw new Error('Transport not available error')
+      case -1003:
+        throw new Error('Malformed json request')
+      case -20104:
+        throw new Error('Missing credentials')
+      case -20601:
+        throw new Error('Incorrect email or password')
+      case -20675:
+        throw new Error('Cloud token expired or invalid')
+      case 1000:
+        throw new Error('Null transport error')
+      case 1001:
+        throw new Error('Command cancel error')
+      case 1002:
+        throw new Error('Transport not available error')
+      case 1003:
+        throw new Error(
+          'Device supports KLAP protocol - Legacy login not supported'
+        )
+      case 1100:
+        throw new Error('Handshake failed')
+      case 1111:
+        throw new Error('Login failed')
+      case 1112:
+        throw new Error('Http transport error')
+      case 1200:
+        throw new Error('Multirequest failed')
+      case 9999:
+        throw new Error('Session Timeout')
+      default:
+        throw new Error(
+          `Unrecognised Error Code: ${errorCode} (${responseData['msg']})`
+        )
+    }
   }
-  const json: any = await r.json()
-  if (VERBOSE) console.log('success! connect json', json)
-
-  if (json && json.error_code && json.msg) {
-    console.error('error: connect error', json.error_code, json.msg)
-    return { terminalUUID: null, token: null }
-  }
-
-  const token =
-    json && json.result && json.result.token ? json.result.token : ''
-  return { terminalUUID, token }
 }
 
-const connectAxios = async () => {
-  const terminalUUID = v4()
-  let token = null
-
-  await axios({
-    ...allowLegacyRenegotiationforNodeJsOptions,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    data: {
-      method: 'login',
-      params: {
-        appType: 'Kasa_Android',
-        cloudUserName: process.env.TPLINK_USER,
-        cloudPassword: process.env.TPLINK_PWD,
-        terminalUUID,
-      },
-    },
-  })
-    .then(function (response) {
-      console.log("success response = ", response);
-      // token =
-      //   response && response.result && response.result.token ? response.result.token : ''
+const connect = async () => {
+  let response
+  try {
+    response = await axios({
+      method: 'post',
+      url: cloudUrl,
+      data: loginRequest,
     })
-    .catch(function (error) {
-      console.log("error", error);
-    });
-
-  console.log("terminalUUID, token", terminalUUID, token)
-  return { terminalUUID, token }
+    checkError(response.data)
+    return response.data.result.token
+  } catch (error) {
+    console.error(error)
+  }
+  return null
 }
 
 export async function getDevices() {
@@ -111,53 +106,55 @@ export async function getDevices() {
     return cachedDeviceList
   }
 
-  const { terminalUUID, token } = await connectAxios()
-  // const { terminalUUID, token } = await connect()
-  if (!terminalUUID) {
-    console.error('error: getDevices no tplink terminalUUID')
+  const cloudToken = await connect()
+  if (!cloudToken) {
+    console.error('error: cloudToken is null')
     return
   }
 
   // get device list
-  let r
+  const getDeviceRequest = {
+    method: 'getDeviceList',
+  }
+  let response
   try {
-    r = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    response = await axios({
+      method: 'post',
+      url: cloudUrl,
+      data: getDeviceRequest,
+      params: {
+        token: cloudToken,
       },
-      body: JSON.stringify({
-        method: 'getDeviceList',
-        params: {
-          appType: 'Kasa_Android',
-          token,
-          terminalUUID,
-        },
-      }),
     })
+    checkError(response.data)
   } catch (error) {
     console.error('error: getDevices fetch error', error)
     return []
   }
-  const json: any = await r.json()
-  if (VERBOSE) console.log('getDevices', json)
+  // if (VERBOSE) console.log('getDevices', response)
+  console.log('getDevices', response)
   if (
-    !json.result ||
-    !json.result.deviceList ||
-    !json.result.deviceList.length
+    !response ||
+    !response.data ||
+    !response.data.result ||
+    !response.data.result.deviceList ||
+    !response.data.result.deviceList.length
   ) {
-    console.error('error: getDevices device list null or empty', json)
+    console.error('error: getDevices device list null or empty')
     return []
   }
   if (VERBOSE) {
-    console.log('getDevices caching list', json.result.deviceList)
+    console.log('getDevices caching list', response.data.result.deviceList)
   }
-  cachedDeviceList = json.result.deviceList
-  return json.result.deviceList
+  cachedDeviceList = response.data.result.deviceList
+  return response.data.result.deviceList
 }
 
 export async function turnDeviceOn(deviceId: string) {
   const devices = await getDevices()
+
+  console.log('turnDeviceOn, returning')
+
   if (!devices || !devices.length) {
     console.error('error: getDevices no TPLINK devices found')
     return
@@ -199,6 +196,9 @@ export async function turnDeviceOn(deviceId: string) {
 
 export async function turnDeviceOff(deviceId: string) {
   const devices = await getDevices()
+
+  console.log('turnDeviceOff, returning')
+
   if (!devices || !devices.length) {
     console.error('error: turnDeviceOff no TPLINK devices found')
     return
