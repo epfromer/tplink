@@ -14,8 +14,8 @@ const loginRequest = {
   method: 'login',
   params: {
     appType: 'Tapo_Android',
-    cloudUserName: process.env.REACT_APP_TPLINK_USER,
-    cloudPassword: process.env.REACT_APP_TPLINK_PWD,
+    cloudUserName: process.env.TPLINK_USER,
+    cloudPassword: process.env.TPLINK_PWD,
     terminalUUID: v4(),
   },
 }
@@ -83,6 +83,8 @@ const checkError = (responseData: any) => {
 }
 
 const connect = async () => {
+  console.log("loginRequest", loginRequest)
+
   let response
   try {
     response = await axios({
