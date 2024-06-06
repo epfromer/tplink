@@ -124,6 +124,7 @@ export async function getDevices() {
   const getDeviceRequest = {
     method: 'getDeviceList',
   }
+  console.log(getDeviceRequest)
   let response
   try {
     response = await axios({
@@ -133,6 +134,9 @@ export async function getDevices() {
       params: {
         token: cloudToken,
       },
+      httpsAgent: new https.Agent({
+        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+      }),
     })
     checkError(response.data)
   } catch (error) {
