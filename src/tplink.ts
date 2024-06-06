@@ -1,9 +1,9 @@
 // import axios from 'axios'
-import * as dotenv from 'dotenv'
-import crypto from 'crypto';
-import https from 'https';
-import { v4 } from 'uuid'
 import axios from 'axios';
+import crypto from 'crypto';
+import * as dotenv from 'dotenv';
+import https from 'https';
+import { v4 } from 'uuid';
 
 dotenv.config()
 
@@ -91,6 +91,9 @@ const connect = async () => {
       method: 'post',
       url: cloudUrl,
       data: loginRequest,
+      httpsAgent: new https.Agent({
+        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+      }),
     })
     checkError(response.data)
     console.log('connect, token', response.data.result.token)
