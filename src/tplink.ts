@@ -91,6 +91,7 @@ const connect = async () => {
       data: loginRequest,
     })
     checkError(response.data)
+    console.log('connect, token', response.data.result.token)
     return response.data.result.token
   } catch (error) {
     console.error(error)
@@ -99,6 +100,8 @@ const connect = async () => {
 }
 
 export async function getDevices() {
+  console.log('getDevices')
+
   if (cachedDeviceList.length > 0) {
     if (VERBOSE) {
       console.log('getDevices returning cached list', cachedDeviceList)
