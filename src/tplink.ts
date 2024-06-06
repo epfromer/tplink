@@ -83,8 +83,6 @@ const checkError = (responseData: any) => {
 }
 
 const connect = async () => {
-  console.log("loginRequest", loginRequest)
-
   let response
   try {
     response = await axios({
@@ -96,7 +94,6 @@ const connect = async () => {
       }),
     })
     checkError(response.data)
-    console.log('connect, token', response.data.result.token)
     return response.data.result.token
   } catch (error) {
     console.error(error)
@@ -105,8 +102,6 @@ const connect = async () => {
 }
 
 export async function getDevices() {
-  console.log('getDevices')
-
   if (cachedDeviceList.length > 0) {
     if (VERBOSE) {
       console.log('getDevices returning cached list', cachedDeviceList)
@@ -143,8 +138,7 @@ export async function getDevices() {
     console.error('error: getDevices fetch error', error)
     return []
   }
-  // if (VERBOSE) console.log('getDevices', response)
-  console.log('getDevices', response)
+  if (VERBOSE) console.log('getDevices', response)
   if (
     !response ||
     !response.data ||
