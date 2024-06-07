@@ -129,7 +129,7 @@ const connect = async () => {
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
     if (VERBOSE) {
-      console.log('getDevices returning cached list', cachedDeviceList)
+      console.log('getDevices returning cached list')
     }
     return cachedDeviceList
   }
