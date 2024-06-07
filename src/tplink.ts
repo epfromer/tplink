@@ -4,6 +4,8 @@ import crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import https from 'https';
 import { v4 } from 'uuid';
+import { base64Decode } from './tplink-cypher';
+import { TapoDevice } from './types';
 
 // https://github.com/dickydoouk/tp-link-tapo-connect
 
@@ -23,6 +25,27 @@ const loginRequest = {
 }
 
 let cachedDeviceList: Array<any> = []
+
+export const augmentTapoDevice = async (deviceInfo: TapoDevice): Promise<TapoDevice> => {
+  if (isTapoDevice(deviceInfo.deviceType)) {
+    return {
+      ...deviceInfo,
+      alias: base64Decode(deviceInfo.alias)
+    }
+  } else {
+    return deviceInfo
+  }
+}
+
+export const isTapoDevice = (deviceType: string) => {
+  switch (deviceType) {
+    case 'SMART.TAPOPLUG':
+    case 'SMART.TAPOBULB':
+    case 'SMART.IPCAMERA':
+      return true
+    default: return false
+  }
+}
 
 const checkError = (responseData: any) => {
   const errorCode = responseData['error_code']
@@ -140,22 +163,26 @@ export async function getDevices() {
     console.error('error: getDevices fetch error', error)
     return []
   }
-  if (VERBOSE) console.log('getDevices', response)
-  if (
-    !response ||
-    !response.data ||
-    !response.data.result ||
-    !response.data.result.deviceList ||
-    !response.data.result.deviceList.length
-  ) {
-    console.error('error: getDevices device list null or empty')
-    return []
-  }
-  if (VERBOSE) {
-    console.log('getDevices caching list', response.data.result.deviceList)
-  }
-  cachedDeviceList = response.data.result.deviceList
-  return response.data.result.deviceList
+
+  return Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)));
+
+
+  // if (VERBOSE) console.log('getDevices', response)
+  // if (
+  //   !response ||
+  //   !response.data ||
+  //   !response.data.result ||
+  //   !response.data.result.deviceList ||
+  //   !response.data.result.deviceList.length
+  // ) {
+  //   console.error('error: getDevices device list null or empty')
+  //   return []
+  // }
+  // if (VERBOSE) {
+  //   console.log('getDevices caching list', response.data.result.deviceList)
+  // }
+  // cachedDeviceList = response.data.result.deviceList
+  // return response.data.result.deviceList
 }
 
 // turn a device on
@@ -163,46 +190,52 @@ export async function turnDeviceOn(deviceId: string) {
   console.log('turnDeviceOn', deviceId)
 
   const devices = await getDevices()
-  if (!devices || !devices.length) {
-    console.error('error: getDevices no TPLINK devices found')
-    return
-  }
-  const device = devices.find((dev: any) => dev.deviceId === deviceId)
-  if (!device) {
-    console.error(`error: turnDeviceOn TPLINK device ${deviceId} not found`)
-    return
-  }
-  const cloudToken = await connect()
-  if (!cloudToken) {
-    console.error('error: turnDeviceOn cloudToken is null')
-    return
-  }
 
-  console.log("device", device)
+  console.log("devices", devices)
 
   return
 
-  try {
-    let response = await axios({
-      method: 'post',
-      url: device.appServerUrl,
-      data: { system: { set_relay_state: { state: 1 } } },
-      params: {
-        appType: 'Tapo_Android',
-        token: cloudToken,
-        deviceId,
-        requestData: {
-          system: { set_relay_state: { state: 1 } },
-        },
-      },
-      httpsAgent: new https.Agent({
-        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-      }),
-    })
-    checkError(response.data)
-  } catch (error) {
-    console.error('error: turnDeviceOn axios error', error)
-  }
+
+  // if (!devices || !devices.length) {
+  //   console.error('error: getDevices no TPLINK devices found')
+  //   return
+  // }
+  // const device = devices.find((dev: any) => dev.deviceId === deviceId)
+  // if (!device) {
+  //   console.error(`error: turnDeviceOn TPLINK device ${deviceId} not found`)
+  //   return
+  // }
+  // const cloudToken = await connect()
+  // if (!cloudToken) {
+  //   console.error('error: turnDeviceOn cloudToken is null')
+  //   return
+  // }
+
+  // console.log("device", device)
+
+  // return
+
+  // try {
+  //   let response = await axios({
+  //     method: 'post',
+  //     url: device.appServerUrl,
+  //     data: { system: { set_relay_state: { state: 1 } } },
+  //     params: {
+  //       appType: 'Tapo_Android',
+  //       token: cloudToken,
+  //       deviceId,
+  //       requestData: {
+  //         system: { set_relay_state: { state: 1 } },
+  //       },
+  //     },
+  //     httpsAgent: new https.Agent({
+  //       secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+  //     }),
+  //   })
+  //   checkError(response.data)
+  // } catch (error) {
+  //   console.error('error: turnDeviceOn axios error', error)
+  // }
 }
 
 // turn a device off
