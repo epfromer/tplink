@@ -178,6 +178,10 @@ export async function turnDeviceOn(deviceId: string) {
     return
   }
 
+  console.log("device", device)
+
+  return
+
   try {
     let response = await axios({
       method: 'post',
@@ -197,7 +201,7 @@ export async function turnDeviceOn(deviceId: string) {
     })
     checkError(response.data)
   } catch (error) {
-    console.error('error: turnDeviceOn fetch error', error)
+    console.error('error: turnDeviceOn axios error', error)
   }
 }
 
