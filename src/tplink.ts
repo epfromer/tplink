@@ -244,41 +244,41 @@ export async function turnDeviceOff(deviceId: string) {
 
   console.log('turnDeviceOff, returning')
 
-  if (!devices || !devices.length) {
-    console.error('error: turnDeviceOff no TPLINK devices found')
-    return
-  }
-  const device = devices.find((dev: any) => dev.deviceId === deviceId)
-  if (!device) {
-    console.error(`error: turnDeviceOff TPLINK device ${deviceId} not found`)
-    return
-  }
-  const { terminalUUID, token } = await connect()
-  if (!terminalUUID) {
-    console.error('error: turnDeviceOff no tplink terminalUUID')
-    return
-  }
-  console.log('turnDeviceOff', deviceId)
-  try {
-    await fetch(device.appServerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        method: 'passthrough',
-        params: {
-          appType: 'Kasa_Android',
-          token,
-          terminalUUID,
-          deviceId,
-          requestData: {
-            system: { set_relay_state: { state: 0 } },
-          },
-        },
-      }),
-    })
-  } catch (error) {
-    console.error('error: turnDeviceOff fetch error', error)
-  }
+  // if (!devices || !devices.length) {
+  //   console.error('error: turnDeviceOff no TPLINK devices found')
+  //   return
+  // }
+  // const device = devices.find((dev: any) => dev.deviceId === deviceId)
+  // if (!device) {
+  //   console.error(`error: turnDeviceOff TPLINK device ${deviceId} not found`)
+  //   return
+  // }
+  // const { terminalUUID, token } = await connect()
+  // if (!terminalUUID) {
+  //   console.error('error: turnDeviceOff no tplink terminalUUID')
+  //   return
+  // }
+  // console.log('turnDeviceOff', deviceId)
+  // try {
+  //   await fetch(device.appServerUrl, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({
+  //       method: 'passthrough',
+  //       params: {
+  //         appType: 'Kasa_Android',
+  //         token,
+  //         terminalUUID,
+  //         deviceId,
+  //         requestData: {
+  //           system: { set_relay_state: { state: 0 } },
+  //         },
+  //       },
+  //     }),
+  //   })
+  // } catch (error) {
+  //   console.error('error: turnDeviceOff fetch error', error)
+  // }
 }
