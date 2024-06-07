@@ -197,27 +197,27 @@ export async function turnDeviceOn(deviceId: string) {
   console.log('turnDeviceOn', deviceId)
   return
 
-  const devices = await getDevices()
-  if (!devices || !devices.length) {
-    console.error('error: getDevices no TPLINK devices found')
-    return
-  }
+  // const devices = await getDevices()
+  // if (!devices || !devices.length) {
+  //   console.error('error: getDevices no TPLINK devices found')
+  //   return
+  // }
 
-  const device = devices.find((dev: any) => dev.deviceId === deviceId)
-  if (!device) {
-    console.error(`error: turnDeviceOn device ${deviceId} not found`)
-    return
-  }
+  // const device = devices.find((dev: any) => dev.deviceId === deviceId)
+  // if (!device) {
+  //   console.error(`error: turnDeviceOn device ${deviceId} not found`)
+  //   return
+  // }
 
-  const cloudToken = await connect()
-  if (!cloudToken) {
-    console.error('error: turnDeviceOn cloudToken is null')
-    return
-  }
+  // const cloudToken = await connect()
+  // if (!cloudToken) {
+  //   console.error('error: turnDeviceOn cloudToken is null')
+  //   return
+  // }
 
-  console.log("device", device)
+  // console.log("device", device)
 
-  return
+  // return
 
   // console.log("device", device)
 
