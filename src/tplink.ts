@@ -141,9 +141,7 @@ export async function getDevices() {
   }
 
   // get device list
-  const getDeviceRequest = {
-    method: 'getDeviceList',
-  }
+  const getDeviceRequest = { method: 'getDeviceList', }
   console.log(getDeviceRequest)
   let response
   try {
@@ -164,14 +162,11 @@ export async function getDevices() {
     return []
   }
 
-  const devices = await Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)));
-  if (VERBOSE) console.log('getDevices', response)
+  const devices = await Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
+  // if (VERBOSE) console.log('getDevices', response)
   if (!devices || !devices.length) {
     console.error('error: getDevices device list null or empty')
     return []
-  }
-  if (VERBOSE) {
-    console.log('getDevices caching list', response.data.result.deviceList)
   }
   cachedDeviceList = devices
   return devices
@@ -182,26 +177,29 @@ export async function turnDeviceOn(deviceId: string) {
   console.log('turnDeviceOn', deviceId)
 
   const devices = await getDevices()
+  if (!devices || !devices.length) {
+    console.error('error: getDevices no TPLINK devices found')
+    return
+  }
 
-  console.log("devices", devices)
+  const device = devices.find((dev: any) => dev.deviceId === deviceId)
+  if (!device) {
+    console.error(`error: turnDeviceOn device ${deviceId} not found`)
+    return
+  }
+
+  const cloudToken = await connect()
+  if (!cloudToken) {
+    console.error('error: turnDeviceOn cloudToken is null')
+    return
+  }
+
+  console.log("device", device)
 
   return
 
 
-  // if (!devices || !devices.length) {
-  //   console.error('error: getDevices no TPLINK devices found')
-  //   return
-  // }
-  // const device = devices.find((dev: any) => dev.deviceId === deviceId)
-  // if (!device) {
-  //   console.error(`error: turnDeviceOn TPLINK device ${deviceId} not found`)
-  //   return
-  // }
-  // const cloudToken = await connect()
-  // if (!cloudToken) {
-  //   console.error('error: turnDeviceOn cloudToken is null')
-  //   return
-  // }
+
 
   // console.log("device", device)
 
