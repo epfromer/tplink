@@ -11,7 +11,7 @@ import { TapoDevice } from './types';
 
 dotenv.config()
 
-const VERBOSE = process.env.VERBOSE === '1'
+const VERBOSE = 1 //process.env.VERBOSE === '1'
 
 const cloudUrl = 'https://wap.tplinkcloud.com'
 const loginRequest = {
@@ -164,25 +164,17 @@ export async function getDevices() {
     return []
   }
 
-  return Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)));
-
-
-  // if (VERBOSE) console.log('getDevices', response)
-  // if (
-  //   !response ||
-  //   !response.data ||
-  //   !response.data.result ||
-  //   !response.data.result.deviceList ||
-  //   !response.data.result.deviceList.length
-  // ) {
-  //   console.error('error: getDevices device list null or empty')
-  //   return []
-  // }
-  // if (VERBOSE) {
-  //   console.log('getDevices caching list', response.data.result.deviceList)
-  // }
-  // cachedDeviceList = response.data.result.deviceList
-  // return response.data.result.deviceList
+  const devices = await Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)));
+  if (VERBOSE) console.log('getDevices', response)
+  if (!devices || !devices.length) {
+    console.error('error: getDevices device list null or empty')
+    return []
+  }
+  if (VERBOSE) {
+    console.log('getDevices caching list', response.data.result.deviceList)
+  }
+  cachedDeviceList = devices
+  return devices
 }
 
 // turn a device on
