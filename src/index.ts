@@ -67,6 +67,17 @@ app.post(
     if (!checkServiceKey(req, res)) return
 
     const devices = await getDevices()
+    if (!devices || !devices.length) {
+      res.status(401).send({
+        errors: [
+          {
+            message: '/ifttt/v1/list_all_devices no devices found',
+          },
+        ],
+      })
+      return
+    }
+
     let data = devices.map((dev: any) => ({
       deviceName: dev.alias,
     }))
@@ -93,12 +104,11 @@ app.post(
     if (!checkServiceKey(req, res)) return
 
     const devices = await getDevices()
-    if (!devices.length) {
+    if (!devices || !devices.length) {
       res.status(401).send({
         errors: [
           {
-            message:
-              '/ifttt/v1/actions/turn_device_on/fields/device_name/options no devices found',
+            message: '/ifttt/v1/actions/turn_device_on/fields/device_name/options no devices found',
           },
         ],
       })
@@ -163,7 +173,7 @@ app.post(
     if (!checkServiceKey(req, res)) return
 
     const devices = await getDevices()
-    if (!devices.length) {
+    if (!devices || !devices.length) {
       res.status(401).send({
         errors: [
           {
