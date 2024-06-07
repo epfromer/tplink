@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv';
 import https from 'https';
 import { v4 } from 'uuid';
 import { base64Decode } from './tplink-cypher';
-import { TapoDevice } from './types';
+import { TapoDevice, TapoDeviceInfo } from './types';
 
 // https://github.com/dickydoouk/tp-link-tapo-connect
 
@@ -126,6 +126,27 @@ const connect = async () => {
   return null
 }
 
+async function sendCloudCommand(command: any, cloudToken: any): Promise<any> {
+  let response
+  try {
+    response = await axios({
+      method: 'post',
+      url: cloudUrl,
+      data: command,
+      params: {
+        token: cloudToken,
+      },
+      httpsAgent: new https.Agent({
+        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+      }),
+    })
+    checkError(response.data)
+  } catch (error) {
+    console.error('error: sendCloudCommand axios error', error)
+  }
+
+}
+
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
     if (VERBOSE) {
@@ -141,29 +162,9 @@ export async function getDevices() {
   }
 
   // get device list
-  const getDeviceRequest = { method: 'getDeviceList', }
-  console.log(getDeviceRequest)
-  let response
-  try {
-    response = await axios({
-      method: 'post',
-      url: cloudUrl,
-      data: getDeviceRequest,
-      params: {
-        token: cloudToken,
-      },
-      httpsAgent: new https.Agent({
-        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-      }),
-    })
-    checkError(response.data)
-  } catch (error) {
-    console.error('error: getDevices fetch error', error)
-    return []
-  }
-
+  const response = await sendCloudCommand({ method: 'getDeviceList', }, cloudToken)
   const devices = await Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
-  // if (VERBOSE) console.log('getDevices', response)
+  if (VERBOSE) console.log('getDevices', response)
   if (!devices || !devices.length) {
     console.error('error: getDevices device list null or empty')
     return []
@@ -172,9 +173,29 @@ export async function getDevices() {
   return devices
 }
 
+const setDeviceOn = async (deviceOn: boolean = true) => {
+  const turnDeviceOnRequest = {
+    "method": "set_device_info",
+    "params": {
+      "device_on": deviceOn,
+    }
+  }
+  // await send(turnDeviceOnRequest)
+}
+
+const augmentTapoDeviceInfo = (deviceInfo: TapoDeviceInfo): TapoDeviceInfo => {
+  return {
+    ...deviceInfo,
+    ssid: base64Decode(deviceInfo.ssid),
+    nickname: base64Decode(deviceInfo.nickname),
+  }
+}
+
+
 // turn a device on
 export async function turnDeviceOn(deviceId: string) {
   console.log('turnDeviceOn', deviceId)
+  return
 
   const devices = await getDevices()
   if (!devices || !devices.length) {
@@ -198,12 +219,7 @@ export async function turnDeviceOn(deviceId: string) {
 
   return
 
-
-
-
   // console.log("device", device)
-
-  // return
 
   // try {
   //   let response = await axios({
