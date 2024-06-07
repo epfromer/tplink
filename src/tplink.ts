@@ -5,6 +5,8 @@ import * as dotenv from 'dotenv';
 import https from 'https';
 import { v4 } from 'uuid';
 
+// https://github.com/dickydoouk/tp-link-tapo-connect
+
 dotenv.config()
 
 const VERBOSE = process.env.VERBOSE === '1'
@@ -156,11 +158,11 @@ export async function getDevices() {
   return response.data.result.deviceList
 }
 
+// turn a device on
 export async function turnDeviceOn(deviceId: string) {
+  console.log('turnDeviceOn', deviceId)
+
   const devices = await getDevices()
-
-  console.log('turnDeviceOn, returning')
-
   if (!devices || !devices.length) {
     console.error('error: getDevices no TPLINK devices found')
     return
@@ -170,36 +172,36 @@ export async function turnDeviceOn(deviceId: string) {
     console.error(`error: turnDeviceOn TPLINK device ${deviceId} not found`)
     return
   }
-  const { terminalUUID, token } = await connect()
-  if (!terminalUUID) {
-    console.error('error: turnDeviceOn no tplink terminalUUID')
+  const cloudToken = await connect()
+  if (!cloudToken) {
+    console.error('error: turnDeviceOn cloudToken is null')
     return
   }
-  console.log('turnDeviceOn', deviceId)
+
   try {
-    await fetch(device.appServerUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        method: 'passthrough',
-        params: {
-          appType: 'Kasa_Android',
-          token,
-          terminalUUID,
-          deviceId,
-          requestData: {
-            system: { set_relay_state: { state: 1 } },
-          },
+    let response = await axios({
+      method: 'post',
+      url: device.appServerUrl,
+      data: { system: { set_relay_state: { state: 1 } } },
+      params: {
+        appType: 'Tapo_Android',
+        token: cloudToken,
+        deviceId,
+        requestData: {
+          system: { set_relay_state: { state: 1 } },
         },
+      },
+      httpsAgent: new https.Agent({
+        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
       }),
     })
+    checkError(response.data)
   } catch (error) {
     console.error('error: turnDeviceOn fetch error', error)
   }
 }
 
+// turn a device off
 export async function turnDeviceOff(deviceId: string) {
   const devices = await getDevices()
 
