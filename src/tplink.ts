@@ -174,6 +174,7 @@ async function getLoginToken() {
 //   }
 // }
 
+// get device list
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
     if (VERBOSE) console.log('getDevices returning cached list')
@@ -188,10 +189,9 @@ export async function getDevices() {
     }
   }
 
-  // get device list
   const response = await sendRequest(getDevicesRequest)
   const devices = await Promise.all(response?.data?.result?.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
-  if (VERBOSE) console.log('getDevices', response)
+  // if (VERBOSE) console.log('getDevices', response)
   if (!devices || !devices.length) {
     console.error('error: getDevices device list null or empty')
     return []
@@ -199,16 +199,6 @@ export async function getDevices() {
   cachedDeviceList = devices
   return devices
 }
-
-// const setDeviceOn = async (device: any, deviceOn: boolean = true) => {
-//   const turnDeviceOnRequest = {
-//     "method": "set_device_info",
-//     "params": {
-//       "device_on": deviceOn,
-//     }
-//   }
-//   await sendCloudCommand(turnDeviceOnRequest)
-// }
 
 // turn a device on
 export async function turnDeviceOn(deviceId: string) {
@@ -226,36 +216,23 @@ export async function turnDeviceOn(deviceId: string) {
     return
   }
 
-  if (VERBOSE) console.log("device", device)
-
-  // await setDeviceOn(device, true)
-
-  const cloudToken = await getLoginToken()
-  if (!cloudToken) {
-    console.error('error: cloudToken is null')
-    return
-  }
-
-  try {
-    let response = await axios({
-      method: 'post',
-      url: device.appServerUrl,
-      params: {
-        appType: 'Tapo_Android',
-        token: cloudToken,
-        deviceId,
-        requestData: {
-          system: { set_relay_state: { state: 1 } },
-        },
+  const loginToken = await getLoginToken()
+  const setDeviceState = {
+    method: 'passthrough',
+    params: {
+      deviceId,
+      requestData: {
+        system: {
+          set_relay_state: {
+            state: 1
+          }
+        }
       },
-      httpsAgent: new https.Agent({
-        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-      }),
-    })
-    checkError(response.data)
-  } catch (error) {
-    console.error('error: turnDeviceOn axios error', error)
+      token: loginToken
+    }
   }
+
+  await sendRequest(setDeviceState)
 }
 
 // turn a device off
