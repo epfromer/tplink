@@ -133,10 +133,15 @@ async function getCloudToken() {
   return null
 }
 
-async function sendCloudCommand(command: any, cloudToken: any): Promise<any> {
-  let response
+async function sendCloudCommand(command: any): Promise<any> {
   try {
-    response = await axios({
+    const cloudToken = await getCloudToken()
+    if (!cloudToken) {
+      console.error('error: cloudToken is null')
+      return
+    }
+
+    const response = await axios({
       method: 'post',
       url: cloudUrl,
       data: command,
@@ -162,14 +167,8 @@ export async function getDevices() {
     return cachedDeviceList
   }
 
-  const cloudToken = await getCloudToken()
-  if (!cloudToken) {
-    console.error('error: cloudToken is null')
-    return
-  }
-
   // get device list
-  const response = await sendCloudCommand({ method: 'getDeviceList', }, cloudToken)
+  const response = await sendCloudCommand({ method: 'getDeviceList', })
   const devices = await Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
   // if (VERBOSE) console.log('getDevices', response)
   if (!devices || !devices.length) {
@@ -187,7 +186,7 @@ const setDeviceOn = async (deviceOn: boolean = true) => {
       "device_on": deviceOn,
     }
   }
-  // await send(turnDeviceOnRequest)
+  await sendCloudCommand(turnDeviceOnRequest)
 }
 
 const augmentTapoDeviceInfo = (deviceInfo: TapoDeviceInfo): TapoDeviceInfo => {
