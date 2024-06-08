@@ -144,7 +144,6 @@ async function sendCloudCommand(command: any, cloudToken: any): Promise<any> {
   } catch (error) {
     console.error('error: sendCloudCommand axios error', error)
   }
-
 }
 
 export async function getDevices() {
@@ -194,30 +193,27 @@ const augmentTapoDeviceInfo = (deviceInfo: TapoDeviceInfo): TapoDeviceInfo => {
 
 // turn a device on
 export async function turnDeviceOn(deviceId: string) {
-  console.log('turnDeviceOn', deviceId)
+  const devices = await getDevices()
+  if (!devices || !devices.length) {
+    console.error('error: no devices found')
+    return
+  }
+
+  const device = devices.find((dev: any) => dev.deviceId === deviceId)
+  if (!device) {
+    console.error(`error: device ${deviceId} not found`)
+    return
+  }
+
+  const cloudToken = await connect()
+  if (!cloudToken) {
+    console.error('error: cloudToken is null')
+    return
+  }
+
+  console.log("device", device)
+
   return
-
-  // const devices = await getDevices()
-  // if (!devices || !devices.length) {
-  //   console.error('error: getDevices no TPLINK devices found')
-  //   return
-  // }
-
-  // const device = devices.find((dev: any) => dev.deviceId === deviceId)
-  // if (!device) {
-  //   console.error(`error: turnDeviceOn device ${deviceId} not found`)
-  //   return
-  // }
-
-  // const cloudToken = await connect()
-  // if (!cloudToken) {
-  //   console.error('error: turnDeviceOn cloudToken is null')
-  //   return
-  // }
-
-  // console.log("device", device)
-
-  // return
 
   // console.log("device", device)
 
