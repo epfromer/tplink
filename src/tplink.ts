@@ -14,18 +14,9 @@ dotenv.config()
 const VERBOSE = 1 //process.env.VERBOSE === '1'
 
 const cloudUrl = 'https://wap.tplinkcloud.com'
-const loginRequest = {
-  method: 'login',
-  params: {
-    appType: 'Tapo_Android',
-    cloudUserName: process.env.TPLINK_USER,
-    cloudPassword: process.env.TPLINK_PWD,
-    terminalUUID: v4(),
-  },
-}
 
 let cachedDeviceList: Array<any> = []
-let cachedCloudToken: any = null
+let cachedLoginToken: any = null
 
 export const augmentTapoDevice = async (deviceInfo: TapoDevice): Promise<TapoDevice> => {
   if (isTapoDevice(deviceInfo.deviceType)) {
@@ -108,46 +99,14 @@ const checkError = (responseData: any) => {
   }
 }
 
-async function getCloudToken() {
-  if (cachedCloudToken) {
-    if (VERBOSE) console.log('getCloudToken returning cached cloud token')
-    return cachedCloudToken
-  }
 
+
+async function sendRequest(request: any) {
   try {
     const response = await axios({
       method: 'post',
       url: cloudUrl,
-      data: loginRequest,
-      httpsAgent: new https.Agent({
-        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-      }),
-    })
-    checkError(response.data)
-    cachedCloudToken = response.data.result.token
-    if (VERBOSE) console.log('cloud token', cachedCloudToken)
-    return cachedCloudToken
-  } catch (error) {
-    console.error('error: getCloudToken axios error', error)
-  }
-  return null
-}
-
-async function sendCloudCommand(command: any): Promise<any> {
-  try {
-    const cloudToken = await getCloudToken()
-    if (!cloudToken) {
-      console.error('error: cloudToken is null')
-      return
-    }
-
-    const response = await axios({
-      method: 'post',
-      url: cloudUrl,
-      data: command,
-      params: {
-        token: cloudToken,
-      },
+      data: request,
       httpsAgent: new https.Agent({
         secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
       }),
@@ -155,9 +114,65 @@ async function sendCloudCommand(command: any): Promise<any> {
     checkError(response.data)
     return response
   } catch (error) {
-    console.error('error: sendCloudCommand axios error', error)
+    console.error('error: sendRequest axios error', error)
   }
+  return null
 }
+
+async function getLoginToken() {
+
+  // TODO - this expires, so put timeout on cached value
+  if (cachedLoginToken) {
+    if (VERBOSE) console.log('getCloudToken returning cached cloud token')
+    return cachedLoginToken
+  }
+
+  const loginRequest = {
+    method: 'login',
+    params: {
+      appType: 'Tapo_Android',
+      cloudUserName: process.env.TPLINK_USER,
+      cloudPassword: process.env.TPLINK_PWD,
+      terminalUUID: v4(),
+    },
+  }
+
+  try {
+    const response = await sendRequest(loginRequest)
+    cachedLoginToken = response?.data?.result?.token
+    if (VERBOSE) console.log('cloud token', cachedLoginToken)
+    return cachedLoginToken
+  } catch (error) {
+    console.error('error: getCloudToken axios error', error)
+  }
+  return null
+}
+
+// async function sendCloudCommand(command: any): Promise<any> {
+//   try {
+//     const cloudToken = await getLoginToken()
+//     if (!cloudToken) {
+//       console.error('error: cloudToken is null')
+//       return
+//     }
+
+//     const response = await axios({
+//       method: 'post',
+//       url: cloudUrl,
+//       data: command,
+//       params: {
+//         token: cloudToken,
+//       },
+//       httpsAgent: new https.Agent({
+//         secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+//       }),
+//     })
+//     checkError(response.data)
+//     return response
+//   } catch (error) {
+//     console.error('error: sendCloudCommand axios error', error)
+//   }
+// }
 
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
@@ -165,10 +180,18 @@ export async function getDevices() {
     return cachedDeviceList
   }
 
+  const loginToken = await getLoginToken()
+  const getDevicesRequest = {
+    method: 'getDeviceList',
+    params: {
+      token: loginToken
+    }
+  }
+
   // get device list
-  const response = await sendCloudCommand({ method: 'getDeviceList', })
-  const devices = await Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
-  // if (VERBOSE) console.log('getDevices', response)
+  const response = await sendRequest(getDevicesRequest)
+  const devices = await Promise.all(response?.data?.result?.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
+  if (VERBOSE) console.log('getDevices', response)
   if (!devices || !devices.length) {
     console.error('error: getDevices device list null or empty')
     return []
@@ -177,15 +200,15 @@ export async function getDevices() {
   return devices
 }
 
-const setDeviceOn = async (device: any, deviceOn: boolean = true) => {
-  const turnDeviceOnRequest = {
-    "method": "set_device_info",
-    "params": {
-      "device_on": deviceOn,
-    }
-  }
-  await sendCloudCommand(turnDeviceOnRequest)
-}
+// const setDeviceOn = async (device: any, deviceOn: boolean = true) => {
+//   const turnDeviceOnRequest = {
+//     "method": "set_device_info",
+//     "params": {
+//       "device_on": deviceOn,
+//     }
+//   }
+//   await sendCloudCommand(turnDeviceOnRequest)
+// }
 
 // turn a device on
 export async function turnDeviceOn(deviceId: string) {
@@ -207,7 +230,7 @@ export async function turnDeviceOn(deviceId: string) {
 
   // await setDeviceOn(device, true)
 
-  const cloudToken = await getCloudToken()
+  const cloudToken = await getLoginToken()
   if (!cloudToken) {
     console.error('error: cloudToken is null')
     return
@@ -217,7 +240,6 @@ export async function turnDeviceOn(deviceId: string) {
     let response = await axios({
       method: 'post',
       url: device.appServerUrl,
-      data: { system: { set_relay_state: { state: 1 } } },
       params: {
         appType: 'Tapo_Android',
         token: cloudToken,
