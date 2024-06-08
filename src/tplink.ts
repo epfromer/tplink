@@ -141,6 +141,7 @@ async function sendCloudCommand(command: any, cloudToken: any): Promise<any> {
       }),
     })
     checkError(response.data)
+    return response
   } catch (error) {
     console.error('error: sendCloudCommand axios error', error)
   }
