@@ -161,9 +161,7 @@ async function sendCloudCommand(command: any): Promise<any> {
 
 export async function getDevices() {
   if (cachedDeviceList.length > 0) {
-    if (VERBOSE) {
-      console.log('getDevices returning cached list')
-    }
+    if (VERBOSE) console.log('getDevices returning cached list')
     return cachedDeviceList
   }
 
@@ -179,7 +177,7 @@ export async function getDevices() {
   return devices
 }
 
-const setDeviceOn = async (deviceOn: boolean = true) => {
+const setDeviceOn = async (device: any, deviceOn: boolean = true) => {
   const turnDeviceOnRequest = {
     "method": "set_device_info",
     "params": {
@@ -189,17 +187,10 @@ const setDeviceOn = async (deviceOn: boolean = true) => {
   await sendCloudCommand(turnDeviceOnRequest)
 }
 
-const augmentTapoDeviceInfo = (deviceInfo: TapoDeviceInfo): TapoDeviceInfo => {
-  return {
-    ...deviceInfo,
-    ssid: base64Decode(deviceInfo.ssid),
-    nickname: base64Decode(deviceInfo.nickname),
-  }
-}
-
-
 // turn a device on
 export async function turnDeviceOn(deviceId: string) {
+  if (VERBOSE) console.log('turnDeviceOn', deviceId)
+
   const devices = await getDevices()
   if (!devices || !devices.length) {
     console.error('error: no devices found')
@@ -212,39 +203,37 @@ export async function turnDeviceOn(deviceId: string) {
     return
   }
 
+  if (VERBOSE) console.log("device", device)
+
+  // await setDeviceOn(device, true)
+
   const cloudToken = await getCloudToken()
   if (!cloudToken) {
     console.error('error: cloudToken is null')
     return
   }
 
-  if (VERBOSE) console.log("device", device)
-
-  return
-
-  // console.log("device", device)
-
-  // try {
-  //   let response = await axios({
-  //     method: 'post',
-  //     url: device.appServerUrl,
-  //     data: { system: { set_relay_state: { state: 1 } } },
-  //     params: {
-  //       appType: 'Tapo_Android',
-  //       token: cloudToken,
-  //       deviceId,
-  //       requestData: {
-  //         system: { set_relay_state: { state: 1 } },
-  //       },
-  //     },
-  //     httpsAgent: new https.Agent({
-  //       secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-  //     }),
-  //   })
-  //   checkError(response.data)
-  // } catch (error) {
-  //   console.error('error: turnDeviceOn axios error', error)
-  // }
+  try {
+    let response = await axios({
+      method: 'post',
+      url: device.appServerUrl,
+      data: { system: { set_relay_state: { state: 1 } } },
+      params: {
+        appType: 'Tapo_Android',
+        token: cloudToken,
+        deviceId,
+        requestData: {
+          system: { set_relay_state: { state: 1 } },
+        },
+      },
+      httpsAgent: new https.Agent({
+        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+      }),
+    })
+    checkError(response.data)
+  } catch (error) {
+    console.error('error: turnDeviceOn axios error', error)
+  }
 }
 
 // turn a device off
