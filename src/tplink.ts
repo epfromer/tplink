@@ -25,6 +25,7 @@ const loginRequest = {
 }
 
 let cachedDeviceList: Array<any> = []
+let cachedCloudToken: any = null
 
 export const augmentTapoDevice = async (deviceInfo: TapoDevice): Promise<TapoDevice> => {
   if (isTapoDevice(deviceInfo.deviceType)) {
@@ -107,10 +108,14 @@ const checkError = (responseData: any) => {
   }
 }
 
-const connect = async () => {
-  let response
+async function getCloudToken() {
+  if (cachedCloudToken) {
+    if (VERBOSE) console.log('getCloudToken returning cached cloud token')
+    return cachedCloudToken
+  }
+
   try {
-    response = await axios({
+    const response = await axios({
       method: 'post',
       url: cloudUrl,
       data: loginRequest,
@@ -119,9 +124,11 @@ const connect = async () => {
       }),
     })
     checkError(response.data)
-    return response.data.result.token
+    cachedCloudToken = response.data.result.token
+    if (VERBOSE) console.log('cloud token', cachedCloudToken)
+    return cachedCloudToken
   } catch (error) {
-    console.error(error)
+    console.error('error: getCloudToken axios error', error)
   }
   return null
 }
@@ -155,7 +162,7 @@ export async function getDevices() {
     return cachedDeviceList
   }
 
-  const cloudToken = await connect()
+  const cloudToken = await getCloudToken()
   if (!cloudToken) {
     console.error('error: cloudToken is null')
     return
@@ -164,7 +171,7 @@ export async function getDevices() {
   // get device list
   const response = await sendCloudCommand({ method: 'getDeviceList', }, cloudToken)
   const devices = await Promise.all(response.data.result.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
-  if (VERBOSE) console.log('getDevices', response)
+  // if (VERBOSE) console.log('getDevices', response)
   if (!devices || !devices.length) {
     console.error('error: getDevices device list null or empty')
     return []
@@ -206,13 +213,13 @@ export async function turnDeviceOn(deviceId: string) {
     return
   }
 
-  const cloudToken = await connect()
+  const cloudToken = await getCloudToken()
   if (!cloudToken) {
     console.error('error: cloudToken is null')
     return
   }
 
-  console.log("device", device)
+  if (VERBOSE) console.log("device", device)
 
   return
 
