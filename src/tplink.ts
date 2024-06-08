@@ -200,9 +200,9 @@ export async function getDevices() {
   return devices
 }
 
-// turn a device on
-export async function turnDeviceOn(deviceId: string) {
-  if (VERBOSE) console.log('turnDeviceOn', deviceId)
+// set device state
+export async function setDeviceState(deviceId: string, state: number) {
+  if (VERBOSE) console.log('setDeviceState', deviceId, state)
 
   const devices = await getDevices()
   if (!devices || !devices.length) {
@@ -224,7 +224,7 @@ export async function turnDeviceOn(deviceId: string) {
       requestData: {
         system: {
           set_relay_state: {
-            state: 1
+            state
           }
         }
       },
@@ -235,47 +235,13 @@ export async function turnDeviceOn(deviceId: string) {
   await sendRequest(setDeviceState)
 }
 
+// turn a device on
+export async function turnDeviceOn(deviceId: string) {
+  await setDeviceState(deviceId, 1)
+}
+
 // turn a device off
 export async function turnDeviceOff(deviceId: string) {
-  const devices = await getDevices()
-
-  console.log('turnDeviceOff, returning')
-
-  // if (!devices || !devices.length) {
-  //   console.error('error: turnDeviceOff no TPLINK devices found')
-  //   return
-  // }
-  // const device = devices.find((dev: any) => dev.deviceId === deviceId)
-  // if (!device) {
-  //   console.error(`error: turnDeviceOff TPLINK device ${deviceId} not found`)
-  //   return
-  // }
-  // const { terminalUUID, token } = await connect()
-  // if (!terminalUUID) {
-  //   console.error('error: turnDeviceOff no tplink terminalUUID')
-  //   return
-  // }
-  // console.log('turnDeviceOff', deviceId)
-  // try {
-  //   await fetch(device.appServerUrl, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       method: 'passthrough',
-  //       params: {
-  //         appType: 'Kasa_Android',
-  //         token,
-  //         terminalUUID,
-  //         deviceId,
-  //         requestData: {
-  //           system: { set_relay_state: { state: 0 } },
-  //         },
-  //       },
-  //     }),
-  //   })
-  // } catch (error) {
-  //   console.error('error: turnDeviceOff fetch error', error)
-  // }
+  await setDeviceState(deviceId, 0)
 }
+
