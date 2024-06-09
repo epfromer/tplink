@@ -9,6 +9,7 @@ import { TapoDevice } from './types';
 // https://github.com/dickydoouk/tp-link-tapo-connect
 // https://docs.joshuatz.com/random/tp-link-kasa/
 
+
 dotenv.config()
 
 const VERBOSE = process.env.VERBOSE === '1'
