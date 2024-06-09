@@ -13,7 +13,7 @@ console.log('VERBOSE', VERBOSE)
 
 const app = express()
 app.use(bodyParser.json())
-app.use(morgan('tiny'))
+if (VERBOSE) app.use(morgan('tiny'))
 
 const checkServiceKey = (req: Request, res: Response) => {
   if (req.get('IFTTT-Service-Key') !== process.env.IFTTT_SERVICE_KEY) {
