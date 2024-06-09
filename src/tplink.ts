@@ -1,22 +1,23 @@
-// import axios from 'axios'
 import axios from 'axios';
 import crypto from 'crypto';
 import * as dotenv from 'dotenv';
 import https from 'https';
 import { v4 } from 'uuid';
 import { base64Decode } from './tplink-cypher';
-import { TapoDevice, TapoDeviceInfo } from './types';
+import { TapoDevice } from './types';
 
 // https://github.com/dickydoouk/tp-link-tapo-connect
+// https://docs.joshuatz.com/random/tp-link-kasa/
 
 dotenv.config()
 
-const VERBOSE = 1 //process.env.VERBOSE === '1'
+const VERBOSE = process.env.VERBOSE === '1'
 
 const cloudUrl = 'https://wap.tplinkcloud.com'
 
 let cachedDeviceList: Array<any> = []
 let cachedLoginToken: any = null
+let cachedLoginTokenCacheTime: any = null
 
 export const augmentTapoDevice = async (deviceInfo: TapoDevice): Promise<TapoDevice> => {
   if (isTapoDevice(deviceInfo.deviceType)) {
@@ -99,8 +100,6 @@ const checkError = (responseData: any) => {
   }
 }
 
-
-
 async function sendRequest(request: any) {
   try {
     const response = await axios({
@@ -121,11 +120,15 @@ async function sendRequest(request: any) {
 
 async function getLoginToken() {
 
-  // TODO - this expires, so put timeout on cached value
   if (cachedLoginToken) {
-    if (VERBOSE) console.log('getCloudToken returning cached cloud token')
-    return cachedLoginToken
+    const msTimeout = 3600000 // one hour
+    if (Date.now() - cachedLoginTokenCacheTime < msTimeout) {
+      if (VERBOSE) console.log('getLoginToken returning cached token')
+        return cachedLoginToken
+    }
   }
+
+  console.log('getLoginToken getting new token')
 
   const loginRequest = {
     method: 'login',
@@ -141,38 +144,13 @@ async function getLoginToken() {
     const response = await sendRequest(loginRequest)
     cachedLoginToken = response?.data?.result?.token
     if (VERBOSE) console.log('cloud token', cachedLoginToken)
+    cachedLoginTokenCacheTime = Date.now()
     return cachedLoginToken
   } catch (error) {
-    console.error('error: getCloudToken axios error', error)
+    console.error('error: getLoginToken axios error', error)
   }
   return null
 }
-
-// async function sendCloudCommand(command: any): Promise<any> {
-//   try {
-//     const cloudToken = await getLoginToken()
-//     if (!cloudToken) {
-//       console.error('error: cloudToken is null')
-//       return
-//     }
-
-//     const response = await axios({
-//       method: 'post',
-//       url: cloudUrl,
-//       data: command,
-//       params: {
-//         token: cloudToken,
-//       },
-//       httpsAgent: new https.Agent({
-//         secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-//       }),
-//     })
-//     checkError(response.data)
-//     return response
-//   } catch (error) {
-//     console.error('error: sendCloudCommand axios error', error)
-//   }
-// }
 
 // get device list
 export async function getDevices() {
@@ -202,7 +180,7 @@ export async function getDevices() {
 
 // set device state
 export async function setDeviceState(deviceId: string, state: number) {
-  if (VERBOSE) console.log('setDeviceState', deviceId, state)
+  console.log('setDeviceState', deviceId, state)
 
   const devices = await getDevices()
   if (!devices || !devices.length) {
