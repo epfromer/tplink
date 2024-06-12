@@ -101,26 +101,20 @@ const checkError = (responseData: any) => {
 }
 
 async function sendRequest(request: any) {
-  let iteration = 1
-  const maxIterations = 3
-  if (iteration <= maxIterations) {
-    try {
-      const response = await axios({
-        method: 'post',
-        url: cloudUrl,
-        data: request,
-        httpsAgent: new https.Agent({
-          secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-        }),
-      })
-      checkError(response.data)
-      return response
-    } catch (error) {
-      console.error('error: sendRequest axios error', request, error)
-      iteration++
-    }
+  try {
+    const response = await axios({
+      method: 'post',
+      url: cloudUrl,
+      data: request,
+      httpsAgent: new https.Agent({
+        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+      }),
+    })
+    checkError(response.data)
+    return response
+  } catch (error) {
+    console.error('error: sendRequest axios error', request, error)
   }
-  console.error("error: sendRequest tried a few times, no go")
   return null
 }
 
@@ -134,7 +128,7 @@ async function getLoginToken() {
     }
   }
 
-  console.log('getLoginToken getting new token')
+  if (VERBOSE) console.log('getLoginToken getting new token')
 
   const loginRequest = {
     method: 'login',
