@@ -9,7 +9,6 @@ import { TapoDevice } from './types';
 // https://github.com/dickydoouk/tp-link-tapo-connect
 // https://docs.joshuatz.com/random/tp-link-kasa/
 
-
 dotenv.config()
 
 const VERBOSE = process.env.VERBOSE === '1'
@@ -102,20 +101,26 @@ const checkError = (responseData: any) => {
 }
 
 async function sendRequest(request: any) {
-  try {
-    const response = await axios({
-      method: 'post',
-      url: cloudUrl,
-      data: request,
-      httpsAgent: new https.Agent({
-        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-      }),
-    })
-    checkError(response.data)
-    return response
-  } catch (error) {
-    console.error('error: sendRequest axios error', error)
+  let iteration = 1
+  const maxIterations = 3
+  if (iteration <= maxIterations) {
+    try {
+      const response = await axios({
+        method: 'post',
+        url: cloudUrl,
+        data: request,
+        httpsAgent: new https.Agent({
+          secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
+        }),
+      })
+      checkError(response.data)
+      return response
+    } catch (error) {
+      console.error('error: sendRequest axios error', request, error)
+      iteration++
+    }
   }
+  console.error("error: sendRequest tried a few times, no go")
   return null
 }
 
@@ -125,7 +130,7 @@ async function getLoginToken() {
     const msTimeout = 3600000 // one hour
     if (Date.now() - cachedLoginTokenCacheTime < msTimeout) {
       if (VERBOSE) console.log('getLoginToken returning cached token')
-        return cachedLoginToken
+      return cachedLoginToken
     }
   }
 
