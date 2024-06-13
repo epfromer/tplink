@@ -194,6 +194,8 @@ export async function setDeviceState(deviceId: string, state: number) {
     return
   }
 
+  console.log(device)
+
   const loginToken = await getLoginToken()
   const setDeviceState = {
     method: 'passthrough',
