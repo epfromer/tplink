@@ -180,8 +180,6 @@ export async function getDevices() {
 
 // set device state
 export async function setDeviceState(deviceId: string, state: number) {
-  console.log('setDeviceState', deviceId, state)
-
   const devices = await getDevices()
   if (!devices || !devices.length) {
     console.error('error: no devices found')
@@ -194,7 +192,7 @@ export async function setDeviceState(deviceId: string, state: number) {
     return
   }
 
-  console.log(device)
+  console.log('setDeviceState', device.alias, state === 1 ? 'on' : 'off')
 
   const loginToken = await getLoginToken()
   const setDeviceState = {
