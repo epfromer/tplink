@@ -20,6 +20,7 @@
     "ejs": "^3.1.10",
     "express": "^4.21.2",
     "morgan": "^1.10.0",
+    "tplink-smarthome-api": "^5.0.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

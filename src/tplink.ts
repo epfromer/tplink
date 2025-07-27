@@ -5,6 +5,7 @@ import https from 'https';
 import { v4 } from 'uuid';
 import { base64Decode } from './tplink-cypher';
 import { TapoDevice } from './types';
+import { Client } from 'tplink-smarthome-api';
 
 // https://github.com/dickydoouk/tp-link-tapo-connect
 // https://docs.joshuatz.com/random/tp-link-kasa/
@@ -217,7 +218,13 @@ export async function setDeviceState(deviceId: string, state: number) {
 export async function turnDeviceOn(deviceId: string) {
   console.log('TURN DEVICE ON', deviceId)
 
-  await setDeviceState(deviceId, 1)
+  const client = new Client();
+  const plug = client.getDevice({host: '192.168.1.29'}).then((device)=>{
+    device.getSysInfo().then(console.log);
+    device.setPowerState(true);
+  });
+
+  // await setDeviceState(deviceId, 1)
 }
 
 // turn a device off
