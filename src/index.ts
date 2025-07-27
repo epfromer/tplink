@@ -153,8 +153,8 @@ app.post(
 
     res.status(200).send({
       data: devices.map((dev: any) => ({
-        label: dev.alias,
-        value: dev.deviceId,
+        label: 'switch',
+        value: 0,
       })),
     })
   }
