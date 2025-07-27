@@ -13,7 +13,7 @@ dotenv.config()
 
 const VERBOSE = process.env.VERBOSE === '1'
 
-const cloudUrl = 'https://wap.tplinkcloud.com'
+const cloudUrl = 'https://tplinkcloud.com'
 
 let cachedDeviceList: Array<any> = []
 let cachedLoginToken: any = null
