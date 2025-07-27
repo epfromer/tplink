@@ -215,11 +215,15 @@ export async function setDeviceState(deviceId: string, state: number) {
 
 // turn a device on
 export async function turnDeviceOn(deviceId: string) {
+  console.log('TURN DEVICE ON', deviceId)
+
   await setDeviceState(deviceId, 1)
 }
 
 // turn a device off
 export async function turnDeviceOff(deviceId: string) {
+  console.log('TURN DEVICE OFF', deviceId)
+
   await setDeviceState(deviceId, 0)
 }
 
