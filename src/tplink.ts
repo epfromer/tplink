@@ -6,7 +6,7 @@ import { Client } from 'tplink-smarthome-api'
 
 dotenv.config()
 
-const VERBOSE = process.env.VERBOSE === '1'
+const VERBOSE = process.env.VERBOSE == '1'
 
 // let cachedDeviceList: Array<any> = []
 // let cachedLoginToken: any = null
