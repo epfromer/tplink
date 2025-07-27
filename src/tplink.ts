@@ -1,11 +1,11 @@
-import axios from 'axios';
-import crypto from 'crypto';
-import * as dotenv from 'dotenv';
-import https from 'https';
-import { v4 } from 'uuid';
-import { base64Decode } from './tplink-cypher';
-import { TapoDevice } from './types';
-import { Client } from 'tplink-smarthome-api';
+import axios from 'axios'
+import crypto from 'crypto'
+import * as dotenv from 'dotenv'
+import https from 'https'
+import { v4 } from 'uuid'
+import { base64Decode } from './tplink-cypher'
+import { TapoDevice } from './types'
+import { Client } from 'tplink-smarthome-api'
 
 // https://github.com/dickydoouk/tp-link-tapo-connect
 // https://docs.joshuatz.com/random/tp-link-kasa/
@@ -20,11 +20,13 @@ let cachedDeviceList: Array<any> = []
 let cachedLoginToken: any = null
 let cachedLoginTokenCacheTime: any = null
 
-export const augmentTapoDevice = async (deviceInfo: TapoDevice): Promise<TapoDevice> => {
+export const augmentTapoDevice = async (
+  deviceInfo: TapoDevice
+): Promise<TapoDevice> => {
   if (isTapoDevice(deviceInfo.deviceType)) {
     return {
       ...deviceInfo,
-      alias: base64Decode(deviceInfo.alias)
+      alias: base64Decode(deviceInfo.alias),
     }
   } else {
     return deviceInfo
@@ -37,7 +39,8 @@ export const isTapoDevice = (deviceType: string) => {
     case 'SMART.TAPOBULB':
     case 'SMART.IPCAMERA':
       return true
-    default: return false
+    default:
+      return false
   }
 }
 
@@ -120,7 +123,6 @@ async function sendRequest(request: any) {
 }
 
 async function getLoginToken() {
-
   if (cachedLoginToken) {
     const msTimeout = 3600000 // one hour
     if (Date.now() - cachedLoginTokenCacheTime < msTimeout) {
@@ -164,12 +166,16 @@ export async function getDevices() {
   const getDevicesRequest = {
     method: 'getDeviceList',
     params: {
-      token: loginToken
-    }
+      token: loginToken,
+    },
   }
 
   const response = await sendRequest(getDevicesRequest)
-  const devices = await Promise.all(response?.data?.result?.deviceList.map(async (deviceInfo: TapoDevice) => augmentTapoDevice(deviceInfo)))
+  const devices = await Promise.all(
+    response?.data?.result?.deviceList.map(async (deviceInfo: TapoDevice) =>
+      augmentTapoDevice(deviceInfo)
+    )
+  )
   // if (VERBOSE) console.log('getDevices', response)
   if (!devices || !devices.length) {
     console.error('error: getDevices device list null or empty')
@@ -203,12 +209,12 @@ export async function setDeviceState(deviceId: string, state: number) {
       requestData: {
         system: {
           set_relay_state: {
-            state
-          }
-        }
+            state,
+          },
+        },
       },
-      token: loginToken
-    }
+      token: loginToken,
+    },
   }
 
   await sendRequest(setDeviceState)
@@ -218,11 +224,11 @@ export async function setDeviceState(deviceId: string, state: number) {
 export async function turnDeviceOn(deviceId: string) {
   console.log('TURN DEVICE ON', deviceId)
 
-  const client = new Client();
-  const plug = client.getDevice({host: '192.168.1.29'}).then((device)=>{
-    device.getSysInfo().then(console.log);
-    device.setPowerState(true);
-  });
+  const client = new Client()
+  const plug = client.getDevice({ host: '192.168.1.29' }).then((device) => {
+    if (VERBOSE) device.getSysInfo().then(console.log)
+    device.setPowerState(true)
+  })
 
   // await setDeviceState(deviceId, 1)
 }
@@ -231,6 +237,11 @@ export async function turnDeviceOn(deviceId: string) {
 export async function turnDeviceOff(deviceId: string) {
   console.log('TURN DEVICE OFF', deviceId)
 
-  await setDeviceState(deviceId, 0)
-}
+  const client = new Client()
+  const plug = client.getDevice({ host: '192.168.1.29' }).then((device) => {
+    if (VERBOSE) device.getSysInfo().then(console.log)
+    device.setPowerState(false)
+  })
 
+  // await setDeviceState(deviceId, 0)
+}
