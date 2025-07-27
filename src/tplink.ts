@@ -14,150 +14,98 @@ dotenv.config()
 
 const VERBOSE = 1 // process.env.VERBOSE === '1'
 
-const cloudUrl = 'https://tplinkcloud.com'
+// let cachedDeviceList: Array<any> = []
+// let cachedLoginToken: any = null
+// let cachedLoginTokenCacheTime: any = null
 
-let cachedDeviceList: Array<any> = []
-let cachedLoginToken: any = null
-let cachedLoginTokenCacheTime: any = null
+// export const augmentTapoDevice = async (
+//   deviceInfo: TapoDevice
+// ): Promise<TapoDevice> => {
+//   if (isTapoDevice(deviceInfo.deviceType)) {
+//     return {
+//       ...deviceInfo,
+//       alias: base64Decode(deviceInfo.alias),
+//     }
+//   } else {
+//     return deviceInfo
+//   }
+// }
 
-export const augmentTapoDevice = async (
-  deviceInfo: TapoDevice
-): Promise<TapoDevice> => {
-  if (isTapoDevice(deviceInfo.deviceType)) {
-    return {
-      ...deviceInfo,
-      alias: base64Decode(deviceInfo.alias),
-    }
-  } else {
-    return deviceInfo
-  }
-}
-
-export const isTapoDevice = (deviceType: string) => {
-  switch (deviceType) {
-    case 'SMART.TAPOPLUG':
-    case 'SMART.TAPOBULB':
-    case 'SMART.IPCAMERA':
-      return true
-    default:
-      return false
-  }
-}
-
-async function sendRequest(request: any) {
-  try {
-    const response = await axios({
-      method: 'post',
-      url: cloudUrl,
-      data: request,
-      httpsAgent: new https.Agent({
-        secureOptions: crypto.constants.SSL_OP_LEGACY_SERVER_CONNECT,
-      }),
-    })
-    return response
-  } catch (error) {
-    console.error('error: sendRequest axios error', request, error)
-  }
-  return null
-}
-
-async function getLoginToken() {
-  if (cachedLoginToken) {
-    const msTimeout = 3600000 // one hour
-    if (Date.now() - cachedLoginTokenCacheTime < msTimeout) {
-      if (VERBOSE) console.log('getLoginToken returning cached token')
-      return cachedLoginToken
-    }
-  }
-
-  if (VERBOSE) console.log('getLoginToken getting new token')
-
-  const loginRequest = {
-    method: 'login',
-    params: {
-      appType: 'Tapo_Android',
-      cloudUserName: process.env.TPLINK_USER,
-      cloudPassword: process.env.TPLINK_PWD,
-      terminalUUID: v4(),
-    },
-  }
-
-  try {
-    const response = await sendRequest(loginRequest)
-    cachedLoginToken = response?.data?.result?.token
-    if (VERBOSE) console.log('cloud token', cachedLoginToken)
-    cachedLoginTokenCacheTime = Date.now()
-    return cachedLoginToken
-  } catch (error) {
-    console.error('error: getLoginToken axios error', error)
-  }
-  return null
-}
+// export const isTapoDevice = (deviceType: string) => {
+//   switch (deviceType) {
+//     case 'SMART.TAPOPLUG':
+//     case 'SMART.TAPOBULB':
+//     case 'SMART.IPCAMERA':
+//       return true
+//     default:
+//       return false
+//   }
+// }
 
 // get device list
-export async function getDevices() {
-  if (cachedDeviceList.length > 0) {
-    if (VERBOSE) console.log('getDevices returning cached list')
-    return cachedDeviceList
-  }
+// export async function getDevices() {
+//   if (cachedDeviceList.length > 0) {
+//     if (VERBOSE) console.log('getDevices returning cached list')
+//     return cachedDeviceList
+//   }
 
-  const loginToken = await getLoginToken()
-  const getDevicesRequest = {
-    method: 'getDeviceList',
-    params: {
-      token: loginToken,
-    },
-  }
+//   const loginToken = await getLoginToken()
+//   const getDevicesRequest = {
+//     method: 'getDeviceList',
+//     params: {
+//       token: loginToken,
+//     },
+//   }
 
-  const response = await sendRequest(getDevicesRequest)
-  const devices = await Promise.all(
-    response?.data?.result?.deviceList.map(async (deviceInfo: TapoDevice) =>
-      augmentTapoDevice(deviceInfo)
-    )
-  )
-  // if (VERBOSE) console.log('getDevices', response)
-  if (!devices || !devices.length) {
-    console.error('error: getDevices device list null or empty')
-    return []
-  }
-  cachedDeviceList = devices
-  return devices
-}
+//   const response = await sendRequest(getDevicesRequest)
+//   const devices = await Promise.all(
+//     response?.data?.result?.deviceList.map(async (deviceInfo: TapoDevice) =>
+//       augmentTapoDevice(deviceInfo)
+//     )
+//   )
+//   // if (VERBOSE) console.log('getDevices', response)
+//   if (!devices || !devices.length) {
+//     console.error('error: getDevices device list null or empty')
+//     return []
+//   }
+//   cachedDeviceList = devices
+//   return devices
+// }
 
 // set device state
-export async function setDeviceState(deviceId: string, state: number) {
-  const devices = await getDevices()
-  if (!devices || !devices.length) {
-    console.error('error: no devices found')
-    return
-  }
+// export async function setDeviceState(deviceId: string, state: number) {
+//   const devices = await getDevices()
+//   if (!devices || !devices.length) {
+//     console.error('error: no devices found')
+//     return
+//   }
 
-  const device = devices.find((dev: any) => dev.deviceId === deviceId)
-  if (!device) {
-    console.error(`error: device ${deviceId} not found`)
-    return
-  }
+//   const device = devices.find((dev: any) => dev.deviceId === deviceId)
+//   if (!device) {
+//     console.error(`error: device ${deviceId} not found`)
+//     return
+//   }
 
-  console.log('setDeviceState', device.alias, state === 1 ? 'on' : 'off')
+//   console.log('setDeviceState', device.alias, state === 1 ? 'on' : 'off')
 
-  const loginToken = await getLoginToken()
-  const setDeviceState = {
-    method: 'passthrough',
-    params: {
-      deviceId,
-      requestData: {
-        system: {
-          set_relay_state: {
-            state,
-          },
-        },
-      },
-      token: loginToken,
-    },
-  }
+//   const loginToken = await getLoginToken()
+//   const setDeviceState = {
+//     method: 'passthrough',
+//     params: {
+//       deviceId,
+//       requestData: {
+//         system: {
+//           set_relay_state: {
+//             state,
+//           },
+//         },
+//       },
+//       token: loginToken,
+//     },
+//   }
 
-  await sendRequest(setDeviceState)
-}
+//   await sendRequest(setDeviceState)
+// }
 
 // turn a device on
 export async function turnDeviceOn() {

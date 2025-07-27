@@ -2,7 +2,7 @@ import bodyParser from 'body-parser'
 import * as dotenv from 'dotenv'
 import express, { Request, Response } from 'express'
 import morgan from 'morgan'
-import { getDevices, turnDeviceOff, turnDeviceOn } from './tplink.js'
+import { turnDeviceOff, turnDeviceOn } from './tplink.js'
 
 // another way to introduce a delay
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
@@ -62,103 +62,103 @@ app.post('/ifttt/v1/test/setup', (req: Request, res: Response) => {
 })
 
 // query: list all devices
-app.post(
-  '/ifttt/v1/queries/list_all_devices',
-  async (req: Request, res: Response) => {
-    if (VERBOSE) console.log('/ifttt/v1/queries/list_all_devices')
-    if (!checkServiceKey(req, res)) return
+// app.post(
+//   '/ifttt/v1/queries/list_all_devices',
+//   async (req: Request, res: Response) => {
+//     if (VERBOSE) console.log('/ifttt/v1/queries/list_all_devices')
+//     if (!checkServiceKey(req, res)) return
 
-    const devices = await getDevices()
-    if (!devices || !devices.length) {
-      res.status(401).send({
-        errors: [
-          {
-            message: '/ifttt/v1/list_all_devices no devices found',
-          },
-        ],
-      })
-      return
-    }
+//     const devices = await getDevices()
+//     if (!devices || !devices.length) {
+//       res.status(401).send({
+//         errors: [
+//           {
+//             message: '/ifttt/v1/list_all_devices no devices found',
+//           },
+//         ],
+//       })
+//       return
+//     }
 
-    let data = devices.map((dev: any) => ({
-      deviceName: dev.alias,
-    }))
+//     let data = devices.map((dev: any) => ({
+//       deviceName: dev.alias,
+//     }))
 
-    let cursor = null
-    if (req.body.limit) {
-      // TODO - cursor; right now, return 0 based index for next item
-      data = data.slice(0, req.body.limit)
-      cursor = req.body.limit < data.length ? req.body.limit : data.length
-      cursor = String(cursor)
-    }
+//     let cursor = null
+//     if (req.body.limit) {
+//       // TODO - cursor; right now, return 0 based index for next item
+//       data = data.slice(0, req.body.limit)
+//       cursor = req.body.limit < data.length ? req.body.limit : data.length
+//       cursor = String(cursor)
+//     }
 
-    res.status(200).send({ data, cursor })
-  }
-)
+//     res.status(200).send({ data, cursor })
+//   }
+// )
 
 // list of devices for action to turn device on
-app.post(
-  '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
-  async (req: Request, res: Response) => {
-    if (VERBOSE) {
-      console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options')
-    }
-    if (!checkServiceKey(req, res)) return
+// app.post(
+//   '/ifttt/v1/actions/turn_device_on/fields/device_name/options',
+//   async (req: Request, res: Response) => {
+//     if (VERBOSE) {
+//       console.log('/ifttt/v1/actions/turn_device_on/fields/device_name/options')
+//     }
+//     if (!checkServiceKey(req, res)) return
 
-    const devices = await getDevices()
-    if (!devices || !devices.length) {
-      res.status(401).send({
-        errors: [
-          {
-            message:
-              '/ifttt/v1/actions/turn_device_on/fields/device_name/options no devices found',
-          },
-        ],
-      })
-      return
-    }
+//     const devices = await getDevices()
+//     if (!devices || !devices.length) {
+//       res.status(401).send({
+//         errors: [
+//           {
+//             message:
+//               '/ifttt/v1/actions/turn_device_on/fields/device_name/options no devices found',
+//           },
+//         ],
+//       })
+//       return
+//     }
 
-    res.status(200).send({
-      data: devices.map((dev: any) => ({
-        label: dev.alias,
-        value: dev.deviceId,
-      })),
-    })
-  }
-)
+//     res.status(200).send({
+//       data: devices.map((dev: any) => ({
+//         label: dev.alias,
+//         value: dev.deviceId,
+//       })),
+//     })
+//   }
+// )
 
 // list of devices for action to turn device off
-app.post(
-  '/ifttt/v1/actions/turn_device_off/fields/device_name/options',
-  async (req: Request, res: Response) => {
-    if (VERBOSE) {
-      console.log(
-        '/ifttt/v1/actions/turn_device_off/fields/device_name/options'
-      )
-    }
-    if (!checkServiceKey(req, res)) return
+// app.post(
+//   '/ifttt/v1/actions/turn_device_off/fields/device_name/options',
+//   async (req: Request, res: Response) => {
+//     if (VERBOSE) {
+//       console.log(
+//         '/ifttt/v1/actions/turn_device_off/fields/device_name/options'
+//       )
+//     }
+//     if (!checkServiceKey(req, res)) return
 
-    const devices = await getDevices()
-    if (!devices || !devices.length) {
-      res.status(401).send({
-        errors: [
-          {
-            message:
-              '/ifttt/v1/actions/turn_device_off/fields/device_name/options no devices found',
-          },
-        ],
-      })
-      return
-    }
+//     const devices = await getDevices()
+//     if (!devices || !devices.length) {
+//       res.status(401).send({
+//         errors: [
+//           {
+//             message:
+//               '/ifttt/v1/actions/turn_device_off/fields/device_name/options no devices found',
+//           },
+//         ],
+//       })
+//       return
+//     }
 
-    res.status(200).send({
-      data: devices.map((dev: any) => ({
-        label: 'switch',
-        value: 0,
-      })),
-    })
-  }
-)
+//     res.status(200).send({
+//       data: devices.map((dev: any) => ({
+//         label: 'switch',
+//         value: 0,
+//       })),
+//     })
+//   }
+// )
 
 // action: turn device on
 app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
