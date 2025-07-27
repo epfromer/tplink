@@ -8,7 +8,7 @@ import { turnDeviceOff, turnDeviceOn } from './tplink.js'
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
 
 dotenv.config()
-const VERBOSE = 1 // process.env.VERBOSE == '1'
+const VERBOSE = process.env.VERBOSE == '1'
 console.log('VERBOSE', VERBOSE)
 
 const OFF_DELAY = 60 * 1000 // 60 seconds

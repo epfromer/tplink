@@ -1,10 +1,4 @@
-import axios from 'axios'
-import crypto from 'crypto'
 import * as dotenv from 'dotenv'
-import https from 'https'
-import { v4 } from 'uuid'
-import { base64Decode } from './tplink-cypher'
-import { TapoDevice } from './types'
 import { Client } from 'tplink-smarthome-api'
 
 // https://github.com/dickydoouk/tp-link-tapo-connect
@@ -12,7 +6,7 @@ import { Client } from 'tplink-smarthome-api'
 
 dotenv.config()
 
-const VERBOSE = 1 // process.env.VERBOSE === '1'
+const VERBOSE = process.env.VERBOSE === '1'
 
 // let cachedDeviceList: Array<any> = []
 // let cachedLoginToken: any = null
