@@ -221,7 +221,7 @@ export async function setDeviceState(deviceId: string, state: number) {
 }
 
 // turn a device on
-export async function turnDeviceOn(deviceId: string) {
+export async function turnDeviceOn() {
   console.log('on:', process.env.TPLINK_SWITCH_IP)
 
   const client = new Client()
@@ -234,7 +234,7 @@ export async function turnDeviceOn(deviceId: string) {
 }
 
 // turn a device off
-export async function turnDeviceOff(deviceId: string) {
+export async function turnDeviceOff() {
   console.log('off:', process.env.TPLINK_SWITCH_IP)
 
   const client = new Client()

@@ -11,6 +11,8 @@ dotenv.config()
 const VERBOSE = 1 // process.env.VERBOSE == '1'
 console.log('VERBOSE', VERBOSE)
 
+const OFF_DELAY = 2000 // 2 seconds
+
 const app = express()
 app.use(bodyParser.json())
 if (VERBOSE) app.use(morgan('tiny'))
@@ -51,7 +53,7 @@ app.post('/ifttt/v1/test/setup', (req: Request, res: Response) => {
     data: {
       samples: {
         actions: {
-          turn_device_on: { device_name: 'test device', duration: 5 },
+          turn_device_on: { device_name: 'test device', duration: 1 },
           turn_device_off: { device_name: 'test device' },
         },
       },
@@ -125,43 +127,6 @@ app.post(
   }
 )
 
-// action: turn device on
-app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
-  if (VERBOSE) console.log('/ifttt/v1/actions/turn_device_on')
-  if (!checkServiceKey(req, res)) return
-
-  // console.log(req.body)
-  if (!req.body.actionFields || !req.body.actionFields.device_name) {
-    res.status(400).send({
-      errors: [
-        {
-          status: 'SKIP',
-          message: 'device name not supplied',
-        },
-      ],
-    })
-    return
-  }
-
-  const duration = +req.body.actionFields.duration
-  const deviceId = req.body.actionFields.device_name
-
-  turnDeviceOn(deviceId)
-
-  // check that duration is < 24 hours
-  if (duration > 0 && duration < 60 * 60 * 24) {
-    if (VERBOSE) {
-      console.log(`turning device ${deviceId} on for ${duration} seconds`)
-    }
-    setTimeout(() => {
-      if (VERBOSE) console.log(`turning device ${deviceId} off`)
-      turnDeviceOff(deviceId)
-    }, duration * 1000)
-  }
-
-  res.status(200).send({ data: [{ id: deviceId }] })
-})
-
 // list of devices for action to turn device off
 app.post(
   '/ifttt/v1/actions/turn_device_off/fields/device_name/options',
@@ -195,28 +160,27 @@ app.post(
   }
 )
 
+// action: turn device on
+app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
+  if (VERBOSE) console.log('/ifttt/v1/actions/turn_device_on')
+  if (!checkServiceKey(req, res)) return
+
+  turnDeviceOn()
+
+  // turn off after a delay
+  setTimeout(() => turnDeviceOff(), OFF_DELAY)
+
+  res.status(200).send({ data: [{ id: 0 }] })
+})
+
 // action: turn device off
 app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
   if (VERBOSE) console.log('/ifttt/v1/actions/turn_device_off')
   if (!checkServiceKey(req, res)) return
 
-  // if (VERBOSE) console.log(req.body)
-  if (!req.body.actionFields || !req.body.actionFields.device_name) {
-    res.status(400).send({
-      errors: [
-        {
-          status: 'SKIP',
-          message: 'device name not supplied',
-        },
-      ],
-    })
-    return
-  }
+  turnDeviceOff()
 
-  const deviceId = req.body.actionFields.device_name
-  turnDeviceOff(deviceId)
-
-  res.status(200).send({ data: [{ id: deviceId }] })
+  res.status(200).send({ data: [{ id: 0 }] })
 })
 
 const port = process.env.PORT || 80
