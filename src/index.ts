@@ -11,7 +11,7 @@ dotenv.config()
 const VERBOSE = 1 // process.env.VERBOSE == '1'
 console.log('VERBOSE', VERBOSE)
 
-const OFF_DELAY = 2000 // 2 seconds
+const OFF_DELAY = 60 * 1000 // 60 seconds
 
 const app = express()
 app.use(bodyParser.json())
@@ -170,7 +170,7 @@ app.post('/ifttt/v1/actions/turn_device_on', (req: Request, res: Response) => {
   // turn off after a delay
   setTimeout(() => turnDeviceOff(), OFF_DELAY)
 
-  res.status(200).send({ data: [{ id: 0 }] })
+  res.status(200)
 })
 
 // action: turn device off
@@ -180,7 +180,7 @@ app.post('/ifttt/v1/actions/turn_device_off', (req: Request, res: Response) => {
 
   turnDeviceOff()
 
-  res.status(200).send({ data: [{ id: 0 }] })
+  res.status(200)
 })
 
 const port = process.env.PORT || 80
