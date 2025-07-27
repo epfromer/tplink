@@ -8,7 +8,7 @@ import { getDevices, turnDeviceOff, turnDeviceOn } from './tplink.js'
 // https://help.ifttt.com/hc/en-us/articles/360059005834-How-to-add-a-delay-to-an-IFTTT-action
 
 dotenv.config()
-const VERBOSE = process.env.VERBOSE === '1'
+const VERBOSE = 1 // process.env.VERBOSE == '1'
 console.log('VERBOSE', VERBOSE)
 
 const app = express()
@@ -108,7 +108,8 @@ app.post(
       res.status(401).send({
         errors: [
           {
-            message: '/ifttt/v1/actions/turn_device_on/fields/device_name/options no devices found',
+            message:
+              '/ifttt/v1/actions/turn_device_on/fields/device_name/options no devices found',
           },
         ],
       })
